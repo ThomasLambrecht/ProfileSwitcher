@@ -32,7 +32,6 @@ dist/
 build/
 
 # Ignore TypeScript configuration files
-tsconfig.json
 tslint.json
 
 # Ignore IDE files
