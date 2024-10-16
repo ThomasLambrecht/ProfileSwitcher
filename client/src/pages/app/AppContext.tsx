@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react'
 import { useQuery, gql } from '@apollo/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

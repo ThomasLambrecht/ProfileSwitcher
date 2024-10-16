@@ -4,9 +4,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { ApolloProvider } from '@apollo/client'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ThemeProvider } from './components/ThemeProvider'
-import { Login } from './components/Login'
-import { AdminDashboard } from './components/AdminDashboard'
-import { AppContext } from './components/AppContext'
+import { Login } from './pages/login/Login'
+import { AdminDashboard } from './pages/admin/AdminDashboard'
+import { AppContext } from './pages/app/AppContext'
 import { Layout } from './components/Layout'
 import { client } from './lib/apollo-client'
 

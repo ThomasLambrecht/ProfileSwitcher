@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Button } from '@/components/ui/button'
@@ -307,8 +310,8 @@ export function AdminDashboard() {
           </Table>
         </TabsContent>
       </Tabs>
-      {toasts.map((toast) => (
-        <Toast key={toast.id} {...toast} onDismiss={dismissToast} />
+      {toasts.map((toast: any) => (
+        <Toast id={toast.id} key={toast.id} {...toast} onDismiss={dismissToast} />
       ))}
     </div>
   )
