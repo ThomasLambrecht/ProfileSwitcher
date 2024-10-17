@@ -12,31 +12,65 @@ const httpServer = http.createServer(app);
 
 // Define the schema
 const typeDefs = `
-  type Component {
-    id: ID!
-    type: String!
-    props: JSON
-    children: [Component]
-  }
-
-  type Page {
+  type Data {
     id: ID!
     name: String!
-    layout: Component
+    type: String!
+    value: JSON
+  }
+
+  type DataPage {
+    id: ID!
+    name: String!
+    data: [Data]
   }
 
   type Query {
-    getPage(name: String!): Page
+    getPageData(name: String!): DataPage
+  }
+
+  type UIComponent {
+    id: ID!
+    type: String!
+    props: JSON
+    children: [UIComponent]
+  }
+
+  type UIPage {
+    id: ID!
+    name: String!
+    layout: UIComponent
+  }
+
+  type Query {
+    getPageUI(name: String!): UIPage
   }
 
   scalar JSON
 `;
 
+const homePageId = uuidv4();
+const homePageName = "home";
+
 // Sample data
-const pages = [
+const dataSample = [
   {
-    id: uuidv4(),
-    name: 'home',
+    id: homePageId,
+    name: homePageName,
+    data:[
+      {
+        name: 'stats',
+        type: 'array',
+        value: ['Users: 1,001', 'Posts: 5,001', 'Comments: 10,001']
+      }
+    ]
+  }
+];
+
+const uiSample = [
+  {
+    id: homePageId,
+    name: homePageName,
     layout: {
       id: uuidv4(),
       type: 'Grid',
@@ -62,7 +96,9 @@ const pages = [
             {
               id: uuidv4(),
               type: 'List',
-              props: { items: ['Users: 1,000', 'Posts: 5,000', 'Comments: 10,000'] }
+              // props: { items: ['Users: 1,000', 'Posts: 5,000', 'Comments: 10,000'] }
+              // props: { items: ['Users: 1,000', 'Posts: 5,000', 'Comments: 10,000'], itemsRef: 'stats' }
+              props: { itemsRef: 'stats' }
             }
           ]
         }
@@ -72,15 +108,16 @@ const pages = [
 ];
 
 interface GetPageArgs {
-    name: string;
+  name: string;
 }
 
 // Define resolvers
 const resolvers = {
-    Query: {
-      getPage: (_: void, args: GetPageArgs) => pages.find(page => page.name === args.name)
-    }
-  };
+  Query: {
+    getPageData: (_: void, args: GetPageArgs) => dataSample.find(page => page.name === args.name),
+    getPageUI: (_: void, args: GetPageArgs) => uiSample.find(page => page.name === args.name)
+  }
+};
 
 // Create Apollo Server
 const server = new ApolloServer({

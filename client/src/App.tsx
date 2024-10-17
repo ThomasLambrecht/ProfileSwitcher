@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ThemeProvider } from './components/ThemeProvider'
 import { Login } from './pages/login/Login'
 import { AdminDashboard } from './pages/admin/AdminDashboard'
-import { AppContext } from './pages/app/AppContext'
+import AppContext from './pages/app'
 import { Layout } from './components/Layout'
 import { client } from './lib/apollo-client'
 
