@@ -42,6 +42,17 @@ const typeDefs = `
     getPageUI(pageName: String!): UIPage
   }
 
+  input Field {
+    path: String!
+    value: JSON
+  }
+
+  type Mutation {
+    addData(pageName: String!, dataName: String!, value: JSON): ID
+    editData(pageName: String!, dataName: String!, rowId: ID!, fields: [Field]!): ID
+    deleteData(pageName: String!, dataName: String!, rowId: ID!): ID
+  }
+
   scalar JSON
 `
 
@@ -214,11 +225,84 @@ interface GetPageArgs {
   pageName: string
 }
 
+interface AddDataArgs {
+  pageName: string
+  dataName: string
+  value: any
+}
+
+interface Field {
+  path: string
+  value: any
+}
+
+interface EditDataArgs {
+  pageName: string
+  dataName: string
+  rowId: string
+  fields: Field[]
+}
+
+interface DeleteDataArgs {
+  pageName: string
+  dataName: string
+  rowId: string
+}
+
+function setValueByPath(obj: any, path: string, value: any): void {
+  const keys = path.split(".")
+
+  // Use reduce to navigate to the second last key
+  const lastKey = keys.pop() // Get the last key
+  const target = keys.reduce((current, key) => {
+    // If the key doesn't exist, create an empty object
+    if (!current[key]) {
+      current[key] = {}
+    }
+    return current[key] // Move deeper into the object
+  }, obj)
+
+  // Set the value at the last key
+  if (lastKey) {
+    target[lastKey] = value
+  }
+}
+
 // Define resolvers
 const resolvers = {
   Query: {
     getPageData: (_: void, args: GetPageArgs) => dataSample.find((page) => page.pageName === args.pageName),
     getPageUI: (_: void, args: GetPageArgs) => uiSample.find((page) => page.pageName === args.pageName),
+  },
+
+  Mutation: {
+    addData: (_: void, { pageName, dataName, value }: AddDataArgs): string => {
+      value.id = uuidv4()
+      const page = dataSample.find((x) => x.pageName === pageName)
+      const data = page?.data.find((x) => x.name === dataName)
+      data?.rows.push(value)
+      return value.id
+    },
+
+    editData: (_: void, { pageName, dataName, rowId, fields }: EditDataArgs): string => {
+      const page = dataSample.find((x) => x.pageName === pageName)
+      const data = page?.data.find((x) => x.name === dataName)
+      const row = data?.rows.find((x) => x.id === rowId)
+      for (var field of fields) {
+        setValueByPath(row, field.path, field.value)
+      }
+      return rowId
+    },
+
+    deleteData: (_: void, { pageName, dataName, rowId }: DeleteDataArgs): string => {
+      const page = dataSample.find((x) => x.pageName === pageName)
+      const data = page?.data.find((x) => x.name === dataName)
+      const rowIndex = data?.rows.findIndex((row) => row.id === rowId)
+      if (rowIndex && rowIndex !== -1) {
+        data?.rows.splice(rowIndex, 1)
+      }
+      return rowId
+    },
   },
 }
 
