@@ -1,48 +1,34 @@
 /* eslint-disable no-case-declarations */
-import ComponentProps from "./ComponentProps";
-import DataProps from "./DataProps";
+import UIComponentProps from "./interfaces/UIComponentProps"
+import DataProps from "./interfaces/DataProps"
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import renderTable from "./renderTable";
+import React from "react"
+import Grid from "./components/Grid"
+import Card from "./components/Card"
+import Text from "./components/Text"
+import List from "./components/List"
+import Table from "./components/Table"
 
-const renderComponent = (component: ComponentProps, data: DataProps[]): React.ReactNode => {
-  switch (component.type) {
+const renderComponent = (ui: UIComponentProps, data: DataProps[]): React.ReactNode => {
+  switch (ui.type) {
     case "Grid":
-      return (
-        <div key={component.id} className={`grid grid-cols-${component.props.columns} gap-${component.props.gap}`}>
-          {component.children?.map((x) => renderComponent(x, data))}
-        </div>
-      );
-    case "Card":
-      return (
-        <Card key={component.id}>
-          <CardHeader>
-            <CardTitle>{component.props.title}</CardTitle>
-          </CardHeader>
-          <CardContent>{component.children?.map((x) => renderComponent(x, data))}</CardContent>
-        </Card>
-      );
-    case "Text":
-      return <p key={component.id}>{component.props.content}</p>;
-    case "List":
-      const dataItems = data && data.find((x) => x.name === component.props.itemsRef)?.value;
-      const items = dataItems ? dataItems : component.props.items;
+      return <Grid ui={ui} data={data} />
 
-      return (
-        <ul key={component.id} className="list-disc pl-5">
-          {items.map((item: string, index: number) => (
-            <li key={index}>{item}</li>
-          ))}
-        </ul>
-      );
+    case "Card":
+      return <Card ui={ui} data={data} />
+
+    case "Text":
+      return <Text ui={ui} data={data} />
+
+    case "List":
+      return <List ui={ui} data={data} />
 
     case "Table":
-      return renderTable(component, data);
+      return <Table ui={ui} data={data} />
 
     default:
-      return null;
+      return null
   }
-};
+}
 
-export default renderComponent;
+export default renderComponent

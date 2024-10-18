@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-import { useState, useEffect } from 'react'
-import axios from 'axios'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useToast } from '@/components/ui/use-toast'
-import { Toast } from '@/components/ui/Toast'
+import { useState, useEffect } from "react"
+import axios from "axios"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useToast } from "@/components/ui/use-toast"
+import { Toast } from "@/components/ui/Toast"
 
 // Define the base URL for the API
-const API_BASE_URL = 'http://localhost:3001/api'
+const API_BASE_URL = "http://localhost:3001/api"
 
 // Define interfaces for our data types
 interface User {
@@ -51,22 +51,17 @@ export function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [usersRes, rolesRes, permissionsRes, appsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/users`),
-        axios.get(`${API_BASE_URL}/roles`),
-        axios.get(`${API_BASE_URL}/permissions`),
-        axios.get(`${API_BASE_URL}/apps`),
-      ])
+      const [usersRes, rolesRes, permissionsRes, appsRes] = await Promise.all([axios.get(`${API_BASE_URL}/users`), axios.get(`${API_BASE_URL}/roles`), axios.get(`${API_BASE_URL}/permissions`), axios.get(`${API_BASE_URL}/apps`)])
       setUsers(usersRes.data)
       setRoles(rolesRes.data)
       setPermissions(permissionsRes.data)
       setApps(appsRes.data)
     } catch (error) {
-      console.error('Error fetching data:', error)
+      console.error("Error fetching data:", error)
       toast({
-        title: 'Error',
-        description: 'Failed to fetch data. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to fetch data. Please try again.",
+        variant: "destructive",
       })
     } finally {
       setLoading(false)
@@ -78,15 +73,15 @@ export function AdminDashboard() {
       const response = await axios.post(`${API_BASE_URL}/${type}`, data)
       fetchData() // Refresh data after creation
       toast({
-        title: 'Success',
+        title: "Success",
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} created successfully.`,
       })
     } catch (error) {
       console.error(`Error creating ${type}:`, error)
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Failed to create ${type}. Please try again.`,
-        variant: 'destructive',
+        variant: "destructive",
       })
     }
   }
@@ -96,15 +91,15 @@ export function AdminDashboard() {
       const response = await axios.put(`${API_BASE_URL}/${type}/${id}`, data)
       fetchData() // Refresh data after update
       toast({
-        title: 'Success',
+        title: "Success",
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} updated successfully.`,
       })
     } catch (error) {
       console.error(`Error updating ${type}:`, error)
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Failed to update ${type}. Please try again.`,
-        variant: 'destructive',
+        variant: "destructive",
       })
     }
   }
@@ -114,15 +109,15 @@ export function AdminDashboard() {
       await axios.delete(`${API_BASE_URL}/${type}/${id}`)
       fetchData() // Refresh data after deletion
       toast({
-        title: 'Success',
+        title: "Success",
         description: `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`,
       })
     } catch (error) {
       console.error(`Error deleting ${type}:`, error)
       toast({
-        title: 'Error',
+        title: "Error",
         description: `Failed to delete ${type}. Please try again.`,
-        variant: 'destructive',
+        variant: "destructive",
       })
     }
   }
@@ -144,9 +139,7 @@ export function AdminDashboard() {
         <TabsContent value="users" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Users</h2>
-            <Button onClick={() => handleCreate('users', { name: 'New User', email: 'new@example.com', role: 'User' })}>
-              Create User
-            </Button>
+            <Button onClick={() => handleCreate("users", { name: "New User", email: "new@example.com", role: "User" })}>Create User</Button>
           </div>
           <Table>
             <TableHeader>
@@ -165,18 +158,10 @@ export function AdminDashboard() {
                   <TableCell>{user.role}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUpdate('users', user.id, { ...user, name: `${user.name} (Updated)` })}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleUpdate("users", user.id, { ...user, name: `${user.name} (Updated)` })}>
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete('users', user.id)}
-                      >
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete("users", user.id)}>
                         Delete
                       </Button>
                     </div>
@@ -189,9 +174,7 @@ export function AdminDashboard() {
         <TabsContent value="roles" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Roles</h2>
-            <Button onClick={() => handleCreate('roles', { name: 'New Role' })}>
-              Create Role
-            </Button>
+            <Button onClick={() => handleCreate("roles", { name: "New Role" })}>Create Role</Button>
           </div>
           <Table>
             <TableHeader>
@@ -206,18 +189,10 @@ export function AdminDashboard() {
                   <TableCell>{role.name}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUpdate('roles', role.id, { ...role, name: `${role.name} (Updated)` })}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleUpdate("roles", role.id, { ...role, name: `${role.name} (Updated)` })}>
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete('roles', role.id)}
-                      >
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete("roles", role.id)}>
                         Delete
                       </Button>
                     </div>
@@ -230,9 +205,7 @@ export function AdminDashboard() {
         <TabsContent value="permissions" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Permissions</h2>
-            <Button onClick={() => handleCreate('permissions', { name: 'New Permission' })}>
-              Create Permission
-            </Button>
+            <Button onClick={() => handleCreate("permissions", { name: "New Permission" })}>Create Permission</Button>
           </div>
           <Table>
             <TableHeader>
@@ -247,18 +220,10 @@ export function AdminDashboard() {
                   <TableCell>{permission.name}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUpdate('permissions', permission.id, { ...permission, name: `${permission.name} (Updated)` })}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleUpdate("permissions", permission.id, { ...permission, name: `${permission.name} (Updated)` })}>
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete('permissions', permission.id)}
-                      >
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete("permissions", permission.id)}>
                         Delete
                       </Button>
                     </div>
@@ -271,9 +236,7 @@ export function AdminDashboard() {
         <TabsContent value="apps" className="space-y-4">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Apps</h2>
-            <Button onClick={() => handleCreate('apps', { name: 'New App' })}>
-              Create App
-            </Button>
+            <Button onClick={() => handleCreate("apps", { name: "New App" })}>Create App</Button>
           </div>
           <Table>
             <TableHeader>
@@ -288,18 +251,10 @@ export function AdminDashboard() {
                   <TableCell>{app.name}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleUpdate('apps', app.id, { ...app, name: `${app.name} (Updated)` })}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleUpdate("apps", app.id, { ...app, name: `${app.name} (Updated)` })}>
                         Edit
                       </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete('apps', app.id)}
-                      >
+                      <Button variant="destructive" size="sm" onClick={() => handleDelete("apps", app.id)}>
                         Delete
                       </Button>
                     </div>

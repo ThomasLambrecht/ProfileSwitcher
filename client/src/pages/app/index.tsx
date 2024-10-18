@@ -1,6 +1,6 @@
-import renderComponent from './renderComponent'
-import { useQuery, gql } from '@apollo/client'
-import './index.css'
+import renderComponent from "./renderComponent"
+import { useQuery, gql } from "@apollo/client"
+import "./index.css"
 
 const GET_PAGE_DATA = gql`
   query GetPageData($name: String!) {
@@ -41,22 +41,30 @@ const GET_PAGE_UI = gql`
 `
 
 const AppContext = () => {
-  const { loading: uiLoading, error: uiError, data: uiData } = useQuery(GET_PAGE_UI, {
-    variables: { name: 'home' }
+  const {
+    loading: uiLoading,
+    error: uiError,
+    data: uiData,
+  } = useQuery(GET_PAGE_UI, {
+    variables: { name: "home" },
   })
 
-  const { loading: dataLoading, error: dataError, data: dataData } = useQuery(GET_PAGE_DATA, {
-    variables: { name: 'home' }
+  const {
+    loading: dataLoading,
+    error: dataError,
+    data: dataData,
+  } = useQuery(GET_PAGE_DATA, {
+    variables: { name: "home" },
   })
 
   if (uiLoading || dataLoading) {
     return <p>Loading...</p>
   }
   if (uiError) {
-    return <p>Error: {uiError.message}</p>
+    return <p>UI Error: {uiError.message}</p>
   }
   if (dataError) {
-    return <p>Error: {dataError.message}</p>
+    return <p>Data Error: {dataError.message}</p>
   }
 
   const pageData = dataData.getPageData
