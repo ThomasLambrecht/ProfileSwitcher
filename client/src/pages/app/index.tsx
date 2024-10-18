@@ -1,5 +1,6 @@
 import renderComponent from './renderComponent'
 import { useQuery, gql } from '@apollo/client'
+import './index.css'
 
 const GET_PAGE_DATA = gql`
   query GetPageData($name: String!) {

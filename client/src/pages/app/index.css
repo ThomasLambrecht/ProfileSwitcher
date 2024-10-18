@@ -1,0 +1,5 @@
+.myTable table,
+.myTable th,
+.myTable td {
+  border: 1px solid black;
+}
