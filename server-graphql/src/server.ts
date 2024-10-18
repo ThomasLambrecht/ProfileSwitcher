@@ -1,32 +1,27 @@
-import express from 'express';
-import { ApolloServer } from '@apollo/server';
-import { expressMiddleware } from '@apollo/server/express4';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import http from 'http';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import { v4 as uuidv4 } from 'uuid';
+import express from "express"
+import { ApolloServer } from "@apollo/server"
+import { expressMiddleware } from "@apollo/server/express4"
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer"
+import http from "http"
+import cors from "cors"
+import bodyParser from "body-parser"
+import { v4 as uuidv4 } from "uuid"
 
-const app = express();
-const httpServer = http.createServer(app);
+const app = express()
+const httpServer = http.createServer(app)
 
 // Define the schema
 const typeDefs = `
   type Data {
     id: ID!
     name: String!
-    type: String!
-    value: JSON
+    rows: JSON
   }
 
   type DataPage {
     id: ID!
-    name: String!
+    pageName: String!
     data: [Data]
-  }
-
-  type Query {
-    getPageData(name: String!): DataPage
   }
 
   type UIComponent {
@@ -38,66 +33,96 @@ const typeDefs = `
 
   type UIPage {
     id: ID!
-    name: String!
+    pageName: String!
     layout: UIComponent
   }
 
   type Query {
-    getPageUI(name: String!): UIPage
+    getPageData(pageName: String!): DataPage
+    getPageUI(pageName: String!): UIPage
   }
 
   scalar JSON
-`;
+`
 
-const homePageId = uuidv4();
-const homePageName = "home";
+const homePageId = uuidv4()
+const homePageName = "home"
 
 // Sample data
 const dataSample = [
   {
     id: homePageId,
-    name: homePageName,
-    data:[
+    pageName: homePageName,
+    data: [
       {
-        name: 'stats',
-        type: 'array',
-        value: ['Users: 1,001', 'Posts: 5,001', 'Comments: 10,001']
+        name: "stats",
+        rows: [
+          {
+            id: uuidv4(),
+            value: "Users: 1,001",
+          },
+          {
+            id: uuidv4(),
+            value: "Posts: 5,001",
+          },
+          {
+            id: uuidv4(),
+            value: "Comments: 10,001",
+          },
+        ],
       },
       {
-        name: 'iterations',
-        type: 'array',
-        value: [
+        name: "iterations",
+        rows: [
           {
+            id: uuidv4(),
             name: "2024 year-end run 1",
-            created: { employee: "Riaan Kirchner", datetime: "2024-04-05 10:23:23" },
-            updated: { employee: "Neil Kleynhans", datetime: "2024-04-05 10:32:21" },
+            created: {
+              employee: "Riaan Kirchner",
+              datetime: "2024-04-05 10:23:23",
+            },
+            updated: {
+              employee: "Neil Kleynhans",
+              datetime: "2024-04-05 10:32:21",
+            },
             status: "Completed",
           },
           {
+            id: uuidv4(),
             name: "2024 year-end run 2",
-            created: { employee: "Francois Kruger", datetime: "2024-04-05 14:43:26" },
-            updated: { employee: "Neil Kleynhans", datetime: "2024-04-06 08:42:52" },
+            created: {
+              employee: "Francois Kruger",
+              datetime: "2024-04-05 14:43:26",
+            },
+            updated: {
+              employee: "Neil Kleynhans",
+              datetime: "2024-04-06 08:42:52",
+            },
             status: "In Progress",
           },
           {
+            id: uuidv4(),
             name: "2024 year-end run 3",
             created: {
               employee: "Richard Montgomery",
               datetime: "2024-04-06 14:43:26",
             },
-            updated: { employee: "Michaela Bogiages", datetime: "2024-04-07 08:32:21" },
+            updated: {
+              employee: "Michaela Bogiages",
+              datetime: "2024-04-07 08:32:21",
+            },
             status: "In Progress",
           },
-        ]
-      }
-    ]
-  }
-];
+        ],
+      },
+    ],
+  },
+]
 
 const uiSample = [
   {
     id: homePageId,
-    name: homePageName,
+    pageName: homePageName,
     layout: {
       id: uuidv4(),
       type: "Grid",
@@ -123,7 +148,9 @@ const uiSample = [
             {
               id: uuidv4(),
               type: "List",
-              props: { items: ['Users: 1,000', 'Posts: 5,000', 'Comments: 10,000'] }
+              props: {
+                items: [{ value: "Users: 1,000" }, { value: "Posts: 5,000" }, { value: "Comments: 10,000" }],
+              },
             },
           ],
         },
@@ -150,23 +177,18 @@ const uiSample = [
             data: [
               {
                 a: "A1",
-                b: {itemA: "B1.a", itemB: "B1.b"},
+                b: { itemA: "B1.a", itemB: "B1.b" },
                 c: "C1",
-                d: "D1"
+                d: "D1",
               },
               {
                 a: "A2",
-                b: {itemA: "B2.a", itemB: "B2.b"},
+                b: { itemA: "B2.a", itemB: "B2.b" },
                 c: "C2",
-                d: "D2"
+                d: "D2",
               },
             ],
-            dataFields: [
-              ["a"],
-              ["b.itemA", "b.itemB"],
-              ["c"],
-              ["d"],
-            ],
+            dataFields: [["a"], ["b.itemA", "b.itemB"], ["c"], ["d"]],
           },
           children: [],
         },
@@ -179,52 +201,42 @@ const uiSample = [
             title: "Iterations",
             headers: ["Iteration", "Created", "Updated", "Status"],
             dataRef: "iterations",
-            dataFields: [
-              ["name"],
-              ["created.employee", "created.datetime"],
-              ["updated.employee", "updated.datetime"],
-              ["status"],
-            ],
+            dataFields: [["name"], ["created.employee", "created.datetime"], ["updated.employee", "updated.datetime"], ["status"]],
           },
           children: [],
         },
       ],
     },
   },
-];
+]
 
 interface GetPageArgs {
-  name: string;
+  pageName: string
 }
 
 // Define resolvers
 const resolvers = {
   Query: {
-    getPageData: (_: void, args: GetPageArgs) => dataSample.find(page => page.name === args.name),
-    getPageUI: (_: void, args: GetPageArgs) => uiSample.find(page => page.name === args.name)
-  }
-};
+    getPageData: (_: void, args: GetPageArgs) => dataSample.find((page) => page.pageName === args.pageName),
+    getPageUI: (_: void, args: GetPageArgs) => uiSample.find((page) => page.pageName === args.pageName),
+  },
+}
 
 // Create Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-});
+})
 
 async function startServer() {
-  await server.start();
+  await server.start()
 
-  app.use(
-    '/graphql',
-    cors<cors.CorsRequest>(),
-    bodyParser.json(),
-    expressMiddleware(server),
-  );
+  app.use("/graphql", cors<cors.CorsRequest>(), bodyParser.json(), expressMiddleware(server))
 
-  const port = 4000;
-  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
-  console.log(`🚀 Server ready at http://localhost:${port}/graphql`);
+  const port = 4000
+  await new Promise<void>((resolve) => httpServer.listen({ port }, resolve))
+  console.log(`🚀 Server ready at http://localhost:${port}/graphql`)
 }
 
-startServer();
+startServer()

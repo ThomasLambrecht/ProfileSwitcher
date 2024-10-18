@@ -3,24 +3,23 @@ import { useQuery, gql } from "@apollo/client"
 import "./index.css"
 
 const GET_PAGE_DATA = gql`
-  query GetPageData($name: String!) {
-    getPageData(name: $name) {
+  query GetPageData($pageName: String!) {
+    getPageData(pageName: $pageName) {
       id
-      name
+      pageName
       data {
         name
-        type
-        value
+        rows
       }
     }
   }
 `
 
 const GET_PAGE_UI = gql`
-  query GetPageUI($name: String!) {
-    getPageUI(name: $name) {
+  query GetPageUI($pageName: String!) {
+    getPageUI(pageName: $pageName) {
       id
-      name
+      pageName
       layout {
         id
         type
@@ -46,7 +45,7 @@ const AppContext = () => {
     error: uiError,
     data: uiData,
   } = useQuery(GET_PAGE_UI, {
-    variables: { name: "home" },
+    variables: { pageName: "home" },
   })
 
   const {
@@ -54,7 +53,7 @@ const AppContext = () => {
     error: dataError,
     data: dataData,
   } = useQuery(GET_PAGE_DATA, {
-    variables: { name: "home" },
+    variables: { pageName: "home" },
   })
 
   if (uiLoading || dataLoading) {
@@ -72,7 +71,7 @@ const AppContext = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">App Context: {pageUI.name}</h1>
+      <h1 className="text-2xl font-bold mb-4">App Context: {pageUI.pageName}</h1>
       {renderComponent(pageUI.layout, pageData.data)}
     </div>
   )

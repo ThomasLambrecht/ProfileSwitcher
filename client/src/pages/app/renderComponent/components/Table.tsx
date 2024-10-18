@@ -4,7 +4,7 @@ import ComponentProps from "../interfaces/ComponentProps"
 const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
   let dataRows = ui.props.data
   if (ui.props.dataRef) {
-    dataRows = data && data.find((x) => x.name === ui.props.dataRef)?.value
+    dataRows = data && data.find((x) => x.name === ui.props.dataRef)?.rows
   }
 
   return (

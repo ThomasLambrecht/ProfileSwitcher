@@ -21,7 +21,8 @@ export function Login() {
       const { sessionId } = response.data
       localStorage.setItem("sessionId", sessionId)
       axios.defaults.headers.common["x-session-id"] = sessionId
-      navigate("/admin")
+      // navigate("/admin")
+      navigate("/app")
       toast({
         title: "Success",
         description: "Logged in successfully",
