@@ -3,8 +3,8 @@ import { useQuery, gql } from "@apollo/client"
 import "./index.css"
 
 const GET_PAGE_DATA = gql`
-  query GetPageData($pageName: String!) {
-    getPageData(pageName: $pageName) {
+  query GetPageData($pageName: String!, $dataName: String) {
+    getPageData(pageName: $pageName, dataName: $dataName) {
       id
       pageName
       data {
@@ -40,12 +40,14 @@ const GET_PAGE_UI = gql`
 `
 
 const AppContext = () => {
+  const pageName = "home"
+
   const {
     loading: uiLoading,
     error: uiError,
     data: uiData,
   } = useQuery(GET_PAGE_UI, {
-    variables: { pageName: "home" },
+    variables: { pageName },
   })
 
   const {
@@ -53,7 +55,7 @@ const AppContext = () => {
     error: dataError,
     data: dataData,
   } = useQuery(GET_PAGE_DATA, {
-    variables: { pageName: "home" },
+    variables: { pageName, dataName: "" },
   })
 
   if (uiLoading || dataLoading) {

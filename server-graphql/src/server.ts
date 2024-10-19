@@ -38,7 +38,7 @@ const typeDefs = `
   }
 
   type Query {
-    getPageData(pageName: String!): DataPage
+    getPageData(pageName: String!, dataName: String): DataPage
     getPageUI(pageName: String!): UIPage
   }
 
@@ -210,7 +210,7 @@ const uiSample = [
             canAdd: true,
             canSearch: true,
             title: "Iterations",
-            headers: ["Iteration", "Created", "Updated", "Status"],
+            headers: ["Iteration", "Modified", "Created", "Status"],
             dataRef: "iterations",
             dataFields: [["name"], ["created.employee", "created.datetime"], ["updated.employee", "updated.datetime"], ["status"]],
           },
@@ -221,7 +221,13 @@ const uiSample = [
   },
 ]
 
-interface GetPageArgs {
+interface GetPageDataArgs {
+  pageName: string
+  dataName: string
+  // searchTerm: string
+}
+
+interface GetPageUIArgs {
   pageName: string
 }
 
@@ -271,8 +277,25 @@ function setValueByPath(obj: any, path: string, value: any): void {
 // Define resolvers
 const resolvers = {
   Query: {
-    getPageData: (_: void, args: GetPageArgs) => dataSample.find((page) => page.pageName === args.pageName),
-    getPageUI: (_: void, args: GetPageArgs) => uiSample.find((page) => page.pageName === args.pageName),
+    getPageData: (_: void, args: GetPageDataArgs) => {
+      const pageData = dataSample.find((page) => page.pageName === args.pageName)
+      if (!pageData) {
+        return null
+      }
+      if (args.dataName) {
+        pageData.data = pageData?.data.filter((x) => x.name === args.dataName)
+      }
+      // if (args.searchTerm) {
+      //   const searchTerm = args.searchTerm.toLowerCase()
+      //   pageData.data.forEach((data) => {
+      //     data.rows = data.rows.filter((row) => {
+      //       return JSON.stringify(row).toLowerCase().includes(searchTerm)
+      //     }) as any[]
+      //   })
+      // }
+      return pageData
+    },
+    getPageUI: (_: void, args: GetPageUIArgs) => uiSample.find((page) => page.pageName === args.pageName),
   },
 
   Mutation: {
