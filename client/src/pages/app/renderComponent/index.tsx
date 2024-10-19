@@ -9,22 +9,24 @@ import Text from "./components/Text"
 import List from "./components/List"
 import Table from "./components/Table"
 
-const renderComponent = (ui: UIComponentProps, data: DataProps[]): React.ReactNode => {
+const renderComponent = (ui: UIComponentProps, data: DataProps[], deleteData?: (dataName: string, rowId: string) => void): React.ReactNode => {
+  console.warn(ui.type, deleteData)
+
   switch (ui.type) {
     case "Grid":
-      return <Grid ui={ui} data={data} />
+      return <Grid ui={ui} data={data} deleteData={deleteData} />
 
     case "Card":
-      return <Card ui={ui} data={data} />
+      return <Card ui={ui} data={data} deleteData={deleteData} />
 
     case "Text":
-      return <Text ui={ui} data={data} />
+      return <Text ui={ui} data={data} deleteData={deleteData} />
 
     case "List":
-      return <List ui={ui} data={data} />
+      return <List ui={ui} data={data} deleteData={deleteData} />
 
     case "Table":
-      return <Table ui={ui} data={data} />
+      return <Table ui={ui} data={data} deleteData={deleteData} />
 
     default:
       return null

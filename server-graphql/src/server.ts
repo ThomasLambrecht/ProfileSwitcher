@@ -83,6 +83,14 @@ const dataSample = [
         ],
       },
       {
+        name: "iterationStatus",
+        rows: [
+          { id: uuidv4(), value: "New" },
+          { id: uuidv4(), value: "In Progress" },
+          { id: uuidv4(), value: "Completed" },
+        ],
+      },
+      {
         name: "iterations",
         rows: [
           {
@@ -213,6 +221,7 @@ const uiSample = [
             headers: ["Iteration", "Modified", "Created", "Status"],
             dataRef: "iterations",
             dataFields: [["name"], ["created.employee", "created.datetime"], ["updated.employee", "updated.datetime"], ["status"]],
+            editFields: [{ field: "name", type: "textInput" }, null, null, { field: "status", type: "select", referenceData: "iterationStatus" }],
           },
           children: [],
         },
@@ -321,7 +330,7 @@ const resolvers = {
       const page = dataSample.find((x) => x.pageName === pageName)
       const data = page?.data.find((x) => x.name === dataName)
       const rowIndex = data?.rows.findIndex((row) => row.id === rowId)
-      if (rowIndex && rowIndex !== -1) {
+      if (rowIndex !== undefined && rowIndex >= 0) {
         data?.rows.splice(rowIndex, 1)
       }
       return rowId
