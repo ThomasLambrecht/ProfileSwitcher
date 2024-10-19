@@ -3,6 +3,8 @@ import React, { ChangeEvent, useEffect, useState } from "react"
 import TableCell from "./TableCell"
 
 const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, data, onEditCancelClick, onEditSaveClick }: any): React.ReactNode => {
+  const [editDataRow, setEditDataRow] = useState<any>(dataRow)
+
   // Edit mode
   if (isEditMode) {
     return (
@@ -16,6 +18,8 @@ const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, 
             index={index}
             isEditMode={isEditMode}
             data={data}
+            editDataRow={editDataRow}
+            setEditDataRow={setEditDataRow}
           />
         ))}
         <td>

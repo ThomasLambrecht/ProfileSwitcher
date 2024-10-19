@@ -42,14 +42,9 @@ const typeDefs = `
     getPageUI(pageName: String!): UIPage
   }
 
-  input Field {
-    path: String!
-    value: JSON
-  }
-
   type Mutation {
-    addData(pageName: String!, dataName: String!, value: JSON): ID
-    editData(pageName: String!, dataName: String!, rowId: ID!, fields: [Field]!): ID
+    addData(pageName: String!, dataName: String!, row: JSON): ID
+    editData(pageName: String!, dataName: String!, row: JSON): ID
     deleteData(pageName: String!, dataName: String!, rowId: ID!): ID
   }
 
@@ -243,19 +238,13 @@ interface GetPageUIArgs {
 interface AddDataArgs {
   pageName: string
   dataName: string
-  value: any
-}
-
-interface Field {
-  path: string
-  value: any
+  row: any
 }
 
 interface EditDataArgs {
   pageName: string
   dataName: string
-  rowId: string
-  fields: Field[]
+  row: any
 }
 
 interface DeleteDataArgs {
@@ -283,6 +272,20 @@ function setValueByPath(obj: any, path: string, value: any): void {
   }
 }
 
+function formatCurrentDateTime() {
+  const now = new Date()
+
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, "0") // Months are 0-indexed
+  const day = String(now.getDate()).padStart(2, "0")
+
+  const hours = String(now.getHours()).padStart(2, "0")
+  const minutes = String(now.getMinutes()).padStart(2, "0")
+  const seconds = String(now.getSeconds()).padStart(2, "0")
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+}
+
 // Define resolvers
 const resolvers = {
   Query: {
@@ -308,22 +311,35 @@ const resolvers = {
   },
 
   Mutation: {
-    addData: (_: void, { pageName, dataName, value }: AddDataArgs): string => {
-      value.id = uuidv4()
+    addData: (_: void, { pageName, dataName, row }: AddDataArgs): string => {
+      row.id = uuidv4()
       const page = dataSample.find((x) => x.pageName === pageName)
       const data = page?.data.find((x) => x.name === dataName)
-      data?.rows.push(value)
-      return value.id
+      data?.rows.push(row)
+      return row.id
     },
 
-    editData: (_: void, { pageName, dataName, rowId, fields }: EditDataArgs): string => {
+    // editData: (_: void, { pageName, dataName, rowId, fields }: EditDataArgs): string => {
+    //   const page = dataSample.find((x) => x.pageName === pageName)
+    //   const data = page?.data.find((x) => x.name === dataName)
+    //   const row = data?.rows.find((x) => x.id === rowId)
+    //   for (var field of fields) {
+    //     setValueByPath(row, field.path, field.value)
+    //   }
+    //   return rowId
+    // },
+
+    editData: (_: void, { pageName, dataName, row }: EditDataArgs): string => {
       const page = dataSample.find((x) => x.pageName === pageName)
       const data = page?.data.find((x) => x.name === dataName)
-      const row = data?.rows.find((x) => x.id === rowId)
-      for (var field of fields) {
-        setValueByPath(row, field.path, field.value)
+      const existingRow = data?.rows.find((x) => x.id === row.id) as any
+      if (existingRow && pageName === homePageName && dataName === "iterations") {
+        existingRow.name = row.name
+        existingRow.updated.employee = "TODO"
+        existingRow.updated.datetime = formatCurrentDateTime()
+        existingRow.status = row.status
       }
-      return rowId
+      return row.id
     },
 
     deleteData: (_: void, { pageName, dataName, rowId }: DeleteDataArgs): string => {

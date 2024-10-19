@@ -1,35 +1,65 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ChangeEvent, useEffect, useState } from "react"
 
-const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data }: any): React.ReactNode => {
+const setValueByPath = (row: any, path: string, value: any): void => {
+  const keys = path.split(".")
+
+  // Use reduce to navigate to the second last key
+  const lastKey = keys.pop() // Get the last key
+  const target = keys.reduce((current, key) => {
+    // If the key doesn't exist, create an empty object
+    if (!current[key]) {
+      current[key] = {}
+    }
+    return current[key] // Move deeper into the object
+  }, row)
+
+  // Set the value at the last key
+  if (lastKey) {
+    target[lastKey] = value
+  }
+}
+
+const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data, editDataRow, setEditDataRow }: any): React.ReactNode => {
+  const dataField = dataFieldSet[0]
+  // const defaultValue = dataField.split(".").reduce((obj: any, key: any) => obj[key], dataRow)
+  // const [value, setValue] = useState<string>(defaultValue)
+  // (row, field.path, field.value)
+
   // Edit mode
   if (isEditMode) {
     const editField = editFields[index]
-    const dataField = dataFieldSet[0]
-    const value = dataField.split(".").reduce((obj: any, key: any) => obj[key], dataRow)
+
+    const onTextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const updatedEditDataRow = {
+        ...editDataRow,
+      }
+      setValueByPath(updatedEditDataRow, dataField, e.target.value)
+      setEditDataRow(updatedEditDataRow)
+    }
 
     if (editField?.type === "textInput") {
       return (
         <td key={index}>
-          <input type="text" value={value} />
+          <input type="text" value={editDataRow[dataField]} onChange={onTextInputChange} />
         </td>
       )
     }
 
-    if (editField?.type === "select") {
-      const iterationStatuses = ((data as any[]).find((x) => x.name === editField.referenceData)?.rows as any[])?.map((x) => x.value) as any[]
-      return (
-        <td key={index}>
-          <select value={value}>
-            {iterationStatuses.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </td>
-      )
-    }
+    // if (editField?.type === "select") {
+    //   const iterationStatuses = ((data as any[]).find((x) => x.name === editField.referenceData)?.rows as any[])?.map((x) => x.value) as any[]
+    //   return (
+    //     <td key={index}>
+    //       <select value={editDataRow[dataField]}>
+    //         {iterationStatuses.map((option, index) => (
+    //           <option key={index} value={option}>
+    //             {option}
+    //           </option>
+    //         ))}
+    //       </select>
+    //     </td>
+    //   )
+    // }
 
     return <td key={index}></td>
   }
