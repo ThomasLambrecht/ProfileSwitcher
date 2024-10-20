@@ -27,15 +27,22 @@ const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data,
   // (row, field.path, field.value)
 
   // Edit mode
-  if (isEditMode) {
-    const editField = editFields[index]
-
-    const onTextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const editField = editFields[index]
+  if (isEditMode && editField?.type) {
+    const updateValue = (value: any) => {
       const updatedEditDataRow = {
         ...editDataRow,
       }
-      setValueByPath(updatedEditDataRow, dataField, e.target.value)
+      setValueByPath(updatedEditDataRow, dataField, value)
       setEditDataRow(updatedEditDataRow)
+    }
+
+    const onTextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+      updateValue(e.target.value)
+    }
+
+    const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+      updateValue(e.target.value)
     }
 
     if (editField?.type === "textInput") {
@@ -46,20 +53,20 @@ const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data,
       )
     }
 
-    // if (editField?.type === "select") {
-    //   const iterationStatuses = ((data as any[]).find((x) => x.name === editField.referenceData)?.rows as any[])?.map((x) => x.value) as any[]
-    //   return (
-    //     <td key={index}>
-    //       <select value={editDataRow[dataField]}>
-    //         {iterationStatuses.map((option, index) => (
-    //           <option key={index} value={option}>
-    //             {option}
-    //           </option>
-    //         ))}
-    //       </select>
-    //     </td>
-    //   )
-    // }
+    if (editField?.type === "select") {
+      const iterationStatuses = ((data as any[]).find((x) => x.name === editField.referenceData)?.rows as any[])?.map((x) => x.value) as any[]
+      return (
+        <td key={index}>
+          <select value={editDataRow[dataField]} onChange={onSelectChange}>
+            {iterationStatuses.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </td>
+      )
+    }
 
     return <td key={index}></td>
   }
@@ -68,7 +75,9 @@ const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data,
   return (
     <td key={index}>
       {dataFieldSet.map((dataField: string, index: number) => {
-        const value = dataField.split(".").reduce((obj, key) => obj[key], dataRow)
+        // const value = dataField.split(".").reduce((obj, key) => obj[key], dataRow)
+        const value = dataField.split(".").reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), dataRow)
+
         if (index === 0) {
           return (
             <React.Fragment key={index}>

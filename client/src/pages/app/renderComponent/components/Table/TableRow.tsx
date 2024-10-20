@@ -25,7 +25,7 @@ const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, 
         <td>
           <button
             onClick={() => {
-              onEditSaveClick(dataRow.id)
+              onEditSaveClick(editDataRow)
             }}
           >
             Save

@@ -3,10 +3,11 @@ import React, { ChangeEvent, useEffect, useState } from "react"
 import ComponentProps from "../../interfaces/ComponentProps"
 import TableRow from "./TableRow"
 
-const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
+const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): React.ReactNode => {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
   const [editRowIds, setEditRowIds] = useState<string[]>([])
+  const [newRow, setNewRow] = useState<any>(null)
 
   let dataRows = ui.props.data
   if (ui.props.dataRef) {
@@ -32,7 +33,9 @@ const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
     setSearchTerm(e.target.value)
   }
 
-  const onAddClick = () => {}
+  const onAddClick = () => {
+    setNewRow({} as any)
+  }
 
   const onEditClick = (rowId: string) => {
     editRowIds.push(rowId)
@@ -42,10 +45,19 @@ const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
   console.warn("editRowIds", editRowIds)
 
   const onEditCancelClick = (rowId: string) => {
+    if (!rowId) {
+      setNewRow(null)
+      return
+    }
     setEditRowIds((prevEditRowIds) => prevEditRowIds.filter((x) => x !== rowId))
   }
 
-  const onEditSaveClick = (rowId: string) => {}
+  const onEditSaveClick = (row: any) => {
+    if (editData) {
+      editData(ui.props.dataRef, row)
+    }
+    onEditCancelClick(row.id)
+  }
 
   const onDeleteClick = (rowId: string) => {
     if (deleteData) {
@@ -54,6 +66,8 @@ const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
   }
 
   console.warn("editRowIds", editRowIds)
+
+  const isAddMode = !!newRow
 
   return (
     <div className="mt-4 mb-4">
@@ -68,19 +82,21 @@ const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
               <th key={index}>{header}</th>
             ))}
             <th>
-              <button
-                onClick={() => {
-                  onAddClick()
-                }}
-              >
-                Add
-              </button>
+              {!isAddMode && (
+                <button
+                  onClick={() => {
+                    onAddClick()
+                  }}
+                >
+                  Add
+                </button>
+              )}
             </th>
           </tr>
         </thead>
         <tbody>
           {dataRows.map((dataRow: any, index: number) => {
-            const isEditMode = editRowIds.includes(dataRow.id)
+            const isEditMode = !!ui.props.dataRef && (!dataRow.id || editRowIds.includes(dataRow.id))
             return (
               <TableRow
                 key={index}
@@ -96,6 +112,20 @@ const Table = ({ ui, data, deleteData }: ComponentProps): React.ReactNode => {
               />
             )
           })}
+          {isAddMode && (
+            <TableRow
+              key={"addRow"}
+              ui={ui}
+              dataRow={newRow}
+              index={"addRow"}
+              onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
+              isEditMode={true}
+              data={data}
+              onEditCancelClick={onEditCancelClick}
+              onEditSaveClick={onEditSaveClick}
+            />
+          )}
         </tbody>
       </table>
     </div>

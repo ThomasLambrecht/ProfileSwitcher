@@ -43,8 +43,8 @@ const typeDefs = `
   }
 
   type Mutation {
-    addData(pageName: String!, dataName: String!, row: JSON): ID
-    editData(pageName: String!, dataName: String!, row: JSON): ID
+    addData(pageName: String!, dataName: String!, row: JSON!): ID
+    editData(pageName: String!, dataName: String!, row: JSON!): ID
     deleteData(pageName: String!, dataName: String!, rowId: ID!): ID
   }
 
@@ -97,7 +97,7 @@ const dataSample = [
             },
             updated: {
               employee: "Neil Kleynhans",
-              datetime: "2024-04-05 10:32:21",
+              datetime: "2024-04-05 12:32:21",
             },
             status: "Completed",
           },
@@ -215,7 +215,7 @@ const uiSample = [
             title: "Iterations",
             headers: ["Iteration", "Modified", "Created", "Status"],
             dataRef: "iterations",
-            dataFields: [["name"], ["created.employee", "created.datetime"], ["updated.employee", "updated.datetime"], ["status"]],
+            dataFields: [["name"], ["updated.employee", "updated.datetime"], ["created.employee", "created.datetime"], ["status"]],
             editFields: [{ field: "name", type: "textInput" }, null, null, { field: "status", type: "select", referenceData: "iterationStatus" }],
           },
           children: [],
@@ -332,12 +332,32 @@ const resolvers = {
     editData: (_: void, { pageName, dataName, row }: EditDataArgs): string => {
       const page = dataSample.find((x) => x.pageName === pageName)
       const data = page?.data.find((x) => x.name === dataName)
-      const existingRow = data?.rows.find((x) => x.id === row.id) as any
-      if (existingRow && pageName === homePageName && dataName === "iterations") {
+      let existingRow = data?.rows.find((x) => x.id === row.id) as any
+      if (pageName === homePageName && dataName === "iterations") {
+        if (existingRow) {
+          existingRow.updated.employee = "TODO"
+          existingRow.updated.datetime = formatCurrentDateTime()
+        }
+        if (existingRow === undefined) {
+          existingRow = {
+            id: uuidv4(),
+            name: null,
+            updated: {
+              employee: null,
+              datetime: null,
+            },
+            created: {
+              employee: "TODO",
+              datetime: formatCurrentDateTime(),
+            },
+            status: "New",
+          }
+          data?.rows.push(existingRow)
+        }
         existingRow.name = row.name
-        existingRow.updated.employee = "TODO"
-        existingRow.updated.datetime = formatCurrentDateTime()
-        existingRow.status = row.status
+        if (row.status) {
+          existingRow.status = row.status
+        }
       }
       return row.id
     },
