@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ChangeEvent, useEffect, useState } from "react"
-import ComponentProps from "../../interfaces/ComponentProps"
+import ComponentProps from "../../interfaces/props/ComponentProps"
 import TableRow from "./TableRow"
+import DataRow from "../../interfaces/graphql/DataRow"
 
-const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): React.ReactNode => {
+const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
   const [editRowIds, setEditRowIds] = useState<string[]>([])
   const [newRow, setNewRow] = useState<any>(null)
 
-  let dataRows = ui.props.data
-  if (ui.props.dataRef) {
-    dataRows = data && data.find((x) => x.name === ui.props.dataRef)?.rows
+  let dataRows = ui.props.rows
+  if (ui.props.dataTableName) {
+    dataRows = data && data.tables.find((x) => x.tableName === ui.props.dataTableName)?.rows
   }
   if (debouncedSearchTerm) {
-    dataRows = dataRows.filter((dataRow: any) => {
+    dataRows = dataRows?.filter((dataRow: any) => {
       return JSON.stringify(dataRow).toLowerCase().includes(debouncedSearchTerm)
     }) as any[]
   }
@@ -22,7 +23,7 @@ const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): Rea
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm.toLowerCase())
-    }, 300)
+    }, 100)
 
     return () => {
       clearTimeout(timeoutId)
@@ -40,9 +41,7 @@ const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): Rea
   const onEditClick = (rowId: string) => {
     editRowIds.push(rowId)
     setEditRowIds((prevEditRowIds) => [...prevEditRowIds, rowId])
-    console.warn("editRowIds", editRowIds)
   }
-  console.warn("editRowIds", editRowIds)
 
   const onEditCancelClick = (rowId: string) => {
     if (!rowId) {
@@ -53,19 +52,17 @@ const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): Rea
   }
 
   const onEditSaveClick = (row: any) => {
-    if (editData) {
-      editData(ui.props.dataRef, row)
+    if (data?.saveRow && ui.props.dataTableName) {
+      data?.saveRow(ui.props.dataTableName, row)
     }
     onEditCancelClick(row.id)
   }
 
   const onDeleteClick = (rowId: string) => {
-    if (deleteData) {
-      deleteData(ui.props.dataRef, rowId)
+    if (data?.deleteRow && ui.props.dataTableName) {
+      data?.deleteRow(ui.props.dataTableName, rowId)
     }
   }
-
-  console.warn("editRowIds", editRowIds)
 
   const isAddMode = !!newRow
 
@@ -73,30 +70,30 @@ const Table = ({ ui, data, addData, editData, deleteData }: ComponentProps): Rea
     <div className="mt-4 mb-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{ui.props.title}</h1>
-        <input type="text" placeholder="Search..." className="border p-2 rounded w-64" onChange={onSearchChange} />
+        {ui.props.canSearch && <input type="text" placeholder="Search..." className="border p-2 rounded w-64" onChange={onSearchChange} />}
       </div>
       <table key={ui.id} className="myTable w-full">
         <thead>
           <tr>
-            {ui.props.headers.map((header: string, index: number) => (
-              <th key={index}>{header}</th>
-            ))}
-            <th>
-              {!isAddMode && (
-                <button
-                  onClick={() => {
-                    onAddClick()
-                  }}
-                >
-                  Add
-                </button>
-              )}
-            </th>
+            {ui.props.headers?.map((header: string, index: number) => <th key={index}>{header}</th>)}
+            {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
+              <th>
+                {ui.props.canAdd && !isAddMode && (
+                  <button
+                    onClick={() => {
+                      onAddClick()
+                    }}
+                  >
+                    Add
+                  </button>
+                )}
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
-          {dataRows.map((dataRow: any, index: number) => {
-            const isEditMode = !!ui.props.dataRef && (!dataRow.id || editRowIds.includes(dataRow.id))
+          {dataRows?.map((dataRow: DataRow, index: number) => {
+            const isEditMode = !!ui.props.dataTableName && (!dataRow.id || editRowIds.includes(dataRow.id))
             return (
               <TableRow
                 key={index}

@@ -1,19 +1,45 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ChangeEvent, useEffect, useState } from "react"
+import React, { useState } from "react"
 import TableCell from "./TableCell"
+import UIComponent from "../../interfaces/graphql/UIComponent"
+import DataRow from "../../interfaces/graphql/DataRow"
+import DataProps from "../../interfaces/props/DataProps"
+import TableViewCell from "../../interfaces/graphql/TableViewCell"
 
-const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, data, onEditCancelClick, onEditSaveClick }: any): React.ReactNode => {
+interface TableRowProps {
+  ui: UIComponent
+  dataRow: DataRow
+  index: number | string
+  onEditClick: any
+  onDeleteClick: any
+  isEditMode: boolean
+  data: DataProps
+  onEditCancelClick: any
+  onEditSaveClick: any
+}
+
+const TableRow = ({
+  ui,
+  dataRow,
+  index,
+  onEditClick,
+  onDeleteClick,
+  isEditMode,
+  data,
+  onEditCancelClick,
+  onEditSaveClick,
+}: TableRowProps): React.ReactNode => {
   const [editDataRow, setEditDataRow] = useState<any>(dataRow)
 
   // Edit mode
   if (isEditMode) {
     return (
       <tr key={index}>
-        {ui.props.dataFields.map((dataFieldSet: string[], index: number) => (
+        {ui.props.tableViewCells?.map((tableViewCell: TableViewCell, index: number) => (
           <TableCell
             key={index}
-            dataFieldSet={dataFieldSet}
-            editFields={ui.props.editFields}
+            tableViewCell={tableViewCell}
+            tableEditCells={ui.props.tableEditCells}
             dataRow={dataRow}
             index={index}
             isEditMode={isEditMode}
@@ -22,22 +48,24 @@ const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, 
             setEditDataRow={setEditDataRow}
           />
         ))}
-        <td>
-          <button
-            onClick={() => {
-              onEditSaveClick(editDataRow)
-            }}
-          >
-            Save
-          </button>
-          <button
-            onClick={() => {
-              onEditCancelClick(dataRow.id)
-            }}
-          >
-            Cancel
-          </button>
-        </td>
+        {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
+          <td>
+            <button
+              onClick={() => {
+                onEditSaveClick(editDataRow)
+              }}
+            >
+              Save
+            </button>
+            <button
+              onClick={() => {
+                onEditCancelClick(dataRow.id)
+              }}
+            >
+              Cancel
+            </button>
+          </td>
+        )}
       </tr>
     )
   }
@@ -45,10 +73,10 @@ const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, 
   // View mode
   return (
     <tr key={index}>
-      {ui.props.dataFields.map((dataFieldSet: string[], index: number) => (
+      {ui.props.tableViewCells?.map((tableViewCell: TableViewCell, index: number) => (
         <td key={index}>
-          {dataFieldSet.map((dataField: string, index: number) => {
-            const value = dataField.split(".").reduce((obj, key) => obj[key], dataRow)
+          {tableViewCell.fields?.map((field: string, index: number) => {
+            const value = field.split(".").reduce((obj, key) => obj[key], dataRow) as any
             if (index === 0) {
               return (
                 <React.Fragment key={index}>
@@ -65,22 +93,28 @@ const TableRow = ({ ui, dataRow, index, onEditClick, onDeleteClick, isEditMode, 
           })}
         </td>
       ))}
-      <td>
-        <button
-          onClick={() => {
-            onEditClick(dataRow.id)
-          }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => {
-            onDeleteClick(dataRow.id)
-          }}
-        >
-          Delete
-        </button>
-      </td>
+      {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
+        <td>
+          {ui.props.canEdit && (
+            <button
+              onClick={() => {
+                onEditClick(dataRow.id)
+              }}
+            >
+              Edit
+            </button>
+          )}
+          {ui.props.canDelete && (
+            <button
+              onClick={() => {
+                onDeleteClick(dataRow.id)
+              }}
+            >
+              Delete
+            </button>
+          )}
+        </td>
+      )}
     </tr>
   )
 }

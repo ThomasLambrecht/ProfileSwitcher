@@ -1,39 +1,41 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ChangeEvent, useEffect, useState } from "react"
+import React, { ChangeEvent } from "react"
+import DataProps from "../../interfaces/props/DataProps"
+import DataRow from "../../interfaces/graphql/DataRow"
+import setValueByPath from "./setValueByPath"
+import TableViewCell from "../../interfaces/graphql/TableViewCell"
+import TableEditCell from "../../interfaces/graphql/TableEditCell"
 
-const setValueByPath = (row: any, path: string, value: any): void => {
-  const keys = path.split(".")
-
-  // Use reduce to navigate to the second last key
-  const lastKey = keys.pop() // Get the last key
-  const target = keys.reduce((current, key) => {
-    // If the key doesn't exist, create an empty object
-    if (!current[key]) {
-      current[key] = {}
-    }
-    return current[key] // Move deeper into the object
-  }, row)
-
-  // Set the value at the last key
-  if (lastKey) {
-    target[lastKey] = value
-  }
+interface TableCellProps {
+  tableViewCell: TableViewCell
+  tableEditCells?: TableEditCell[]
+  dataRow: DataRow
+  index: number
+  isEditMode: boolean
+  data: DataProps
+  editDataRow: any
+  setEditDataRow: any
 }
 
-const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data, editDataRow, setEditDataRow }: any): React.ReactNode => {
-  const dataField = dataFieldSet[0]
-  // const defaultValue = dataField.split(".").reduce((obj: any, key: any) => obj[key], dataRow)
-  // const [value, setValue] = useState<string>(defaultValue)
-  // (row, field.path, field.value)
+const TableCell = ({
+  tableViewCell,
+  tableEditCells,
+  dataRow,
+  index,
+  isEditMode,
+  data,
+  editDataRow,
+  setEditDataRow,
+}: TableCellProps): React.ReactNode => {
+  const field = tableViewCell.fields[0]
 
   // Edit mode
-  const editField = editFields[index]
-  if (isEditMode && editField?.type) {
+  const tableEditCell = tableEditCells && tableEditCells[index]
+  if (isEditMode && tableEditCell?.type) {
     const updateValue = (value: any) => {
       const updatedEditDataRow = {
         ...editDataRow,
       }
-      setValueByPath(updatedEditDataRow, dataField, value)
+      setValueByPath(updatedEditDataRow, field, value)
       setEditDataRow(updatedEditDataRow)
     }
 
@@ -45,22 +47,22 @@ const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data,
       updateValue(e.target.value)
     }
 
-    if (editField?.type === "textInput") {
+    if (tableEditCell?.type === "textInput") {
       return (
         <td key={index}>
-          <input type="text" value={editDataRow[dataField]} onChange={onTextInputChange} />
+          <input type="text" value={editDataRow[field]} onChange={onTextInputChange} />
         </td>
       )
     }
 
-    if (editField?.type === "select") {
-      const iterationStatuses = ((data as any[]).find((x) => x.name === editField.referenceData)?.rows as any[])?.map((x) => x.value) as any[]
+    if (tableEditCell?.type === "select") {
+      const iterationStatusRows = data.tables.find((x) => x.tableName === tableEditCell.referenceTableName)?.rows
       return (
         <td key={index}>
-          <select value={editDataRow[dataField]} onChange={onSelectChange}>
-            {iterationStatuses.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
+          <select value={editDataRow[field]} onChange={onSelectChange}>
+            {iterationStatusRows?.map((row, index) => (
+              <option key={index} value={row.value}>
+                {row.value}
               </option>
             ))}
           </select>
@@ -74,9 +76,8 @@ const TableCell = ({ dataFieldSet, dataRow, index, isEditMode, editFields, data,
   // View mode
   return (
     <td key={index}>
-      {dataFieldSet.map((dataField: string, index: number) => {
-        // const value = dataField.split(".").reduce((obj, key) => obj[key], dataRow)
-        const value = dataField.split(".").reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), dataRow)
+      {tableViewCell.fields.map((dataField: string, index: number) => {
+        const value = dataField.split(".").reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), dataRow) as any
 
         if (index === 0) {
           return (

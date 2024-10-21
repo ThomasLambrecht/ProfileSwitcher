@@ -1,6 +1,6 @@
 import React from "react"
 import renderComponent from ".."
-import ComponentProps from "../interfaces/ComponentProps"
+import ComponentProps from "../interfaces/props/ComponentProps"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const CardComponent = ({ ui, data }: ComponentProps): React.ReactNode => {

@@ -12,16 +12,16 @@ const httpServer = http.createServer(app)
 
 // Define the schema
 const typeDefs = `
-  type Data {
+  type Table {
     id: ID!
-    name: String!
+    tableName: String!
     rows: JSON
   }
 
-  type DataPage {
+  type PageData {
     id: ID!
     pageName: String!
-    data: [Data]
+    tables: [Table]
   }
 
   type UIComponent {
@@ -31,37 +31,38 @@ const typeDefs = `
     children: [UIComponent]
   }
 
-  type UIPage {
+  type PageUI {
     id: ID!
     pageName: String!
     layout: UIComponent
   }
 
   type Query {
-    getPageData(pageName: String!, dataName: String): DataPage
-    getPageUI(pageName: String!): UIPage
+    getPageData(pageName: String!, tableName: String): PageData
+    getPageUI(pageName: String!): PageUI
   }
 
   type Mutation {
-    addData(pageName: String!, dataName: String!, row: JSON!): ID
-    editData(pageName: String!, dataName: String!, row: JSON!): ID
-    deleteData(pageName: String!, dataName: String!, rowId: ID!): ID
+    saveData(pageName: String!, tableName: String!, row: JSON!): ID
+    deleteData(pageName: String!, tableName: String!, rowId: ID!): ID
   }
 
   scalar JSON
 `
 
+// TODO: put this in a database
 const homePageId = uuidv4()
 const homePageName = "home"
 
 // Sample data
-const dataSample = [
+// TODO: put this in a database
+const tables = [
   {
     id: homePageId,
     pageName: homePageName,
-    data: [
+    tables: [
       {
-        name: "stats",
+        tableName: "stats",
         rows: [
           {
             id: uuidv4(),
@@ -78,7 +79,7 @@ const dataSample = [
         ],
       },
       {
-        name: "iterationStatus",
+        tableName: "iterationStatus",
         rows: [
           { id: uuidv4(), value: "New" },
           { id: uuidv4(), value: "In Progress" },
@@ -86,7 +87,7 @@ const dataSample = [
         ],
       },
       {
-        name: "iterations",
+        tableName: "iterations",
         rows: [
           {
             id: uuidv4(),
@@ -163,7 +164,7 @@ const uiSample = [
               id: uuidv4(),
               type: "List",
               props: {
-                items: [{ value: "Users: 1,000" }, { value: "Posts: 5,000" }, { value: "Comments: 10,000" }],
+                rows: [{ value: "Users: 1,000" }, { value: "Posts: 5,000" }, { value: "Comments: 10,000" }],
               },
             },
           ],
@@ -176,7 +177,7 @@ const uiSample = [
             {
               id: uuidv4(),
               type: "List",
-              props: { itemsRef: "stats" },
+              props: { dataTableName: "stats" },
             },
           ],
         },
@@ -184,11 +185,13 @@ const uiSample = [
           id: uuidv4(),
           type: "Table",
           props: {
-            canAdd: true,
-            canSearch: true,
+            canAdd: false,
+            canEdit: false,
+            canDelete: false,
+            canSearch: false,
             title: "Table 1",
             headers: ["Header A", "Header B", "Header C", "Header D"],
-            data: [
+            rows: [
               {
                 a: "A1",
                 b: { itemA: "B1.a", itemB: "B1.b" },
@@ -202,7 +205,7 @@ const uiSample = [
                 d: "D2",
               },
             ],
-            dataFields: [["a"], ["b.itemA", "b.itemB"], ["c"], ["d"]],
+            tableViewCells: [{ fields: ["a"] }, { fields: ["b.itemA", "b.itemB"] }, { fields: ["c"] }, { fields: ["d"] }],
           },
           children: [],
         },
@@ -211,12 +214,14 @@ const uiSample = [
           type: "Table",
           props: {
             canAdd: true,
-            canSearch: true,
+            canEdit: true,
+            canDelete: true,
+            canSearch: false,
             title: "Iterations",
             headers: ["Iteration", "Modified", "Created", "Status"],
-            dataRef: "iterations",
-            dataFields: [["name"], ["updated.employee", "updated.datetime"], ["created.employee", "created.datetime"], ["status"]],
-            editFields: [{ field: "name", type: "textInput" }, null, null, { field: "status", type: "select", referenceData: "iterationStatus" }],
+            dataTableName: "iterations",
+            tableViewCells: [{ fields: ["name"] }, { fields: ["updated.employee", "updated.datetime"] }, { fields: ["created.employee", "created.datetime"] }, { fields: ["status"] }],
+            tableEditCells: [{ field: "name", type: "textInput" }, null, null, { field: "status", type: "select", referenceTableName: "iterationStatus" }],
           },
           children: [],
         },
@@ -227,52 +232,27 @@ const uiSample = [
 
 interface GetPageDataArgs {
   pageName: string
-  dataName: string
-  // searchTerm: string
+  tableName: string
 }
 
 interface GetPageUIArgs {
   pageName: string
 }
 
-interface AddDataArgs {
+interface SaveDataArgs {
   pageName: string
-  dataName: string
-  row: any
-}
-
-interface EditDataArgs {
-  pageName: string
-  dataName: string
-  row: any
+  tableName: string
+  row: any // row to edit/add (new rows have empty ids)
 }
 
 interface DeleteDataArgs {
   pageName: string
-  dataName: string
-  rowId: string
+  tableName: string
+  rowId: string // row to delete
 }
 
-function setValueByPath(obj: any, path: string, value: any): void {
-  const keys = path.split(".")
-
-  // Use reduce to navigate to the second last key
-  const lastKey = keys.pop() // Get the last key
-  const target = keys.reduce((current, key) => {
-    // If the key doesn't exist, create an empty object
-    if (!current[key]) {
-      current[key] = {}
-    }
-    return current[key] // Move deeper into the object
-  }, obj)
-
-  // Set the value at the last key
-  if (lastKey) {
-    target[lastKey] = value
-  }
-}
-
-function formatCurrentDateTime() {
+function getCurrentDateTimeFormatted() {
+  // This returns the current datetime (now) formatted as "2024-04-05 10:23:23"
   const now = new Date()
 
   const year = now.getFullYear()
@@ -290,54 +270,46 @@ function formatCurrentDateTime() {
 const resolvers = {
   Query: {
     getPageData: (_: void, args: GetPageDataArgs) => {
-      const pageData = dataSample.find((page) => page.pageName === args.pageName)
+      // TODO:
+      // - Add server-side search
+      // - Add paging (page number and page size)
+      // - Add ordering (and support multiple columns)
+      // - Add support for filters (e.g. items that match select list; or amount > 1000)
+
+      // Return all tables
+      // TODO: use actual database
+      const pageData = tables.find((page) => page.pageName === args.pageName)
       if (!pageData) {
         return null
       }
-      if (args.dataName) {
-        pageData.data = pageData?.data.filter((x) => x.name === args.dataName)
+      // Optional table filter so that we only update the data we need
+      if (args.tableName) {
+        pageData.tables = pageData?.tables.filter((x) => x.tableName === args.tableName)
       }
-      // if (args.searchTerm) {
-      //   const searchTerm = args.searchTerm.toLowerCase()
-      //   pageData.data.forEach((data) => {
-      //     data.rows = data.rows.filter((row) => {
-      //       return JSON.stringify(row).toLowerCase().includes(searchTerm)
-      //     }) as any[]
-      //   })
-      // }
       return pageData
     },
     getPageUI: (_: void, args: GetPageUIArgs) => uiSample.find((page) => page.pageName === args.pageName),
   },
 
   Mutation: {
-    addData: (_: void, { pageName, dataName, row }: AddDataArgs): string => {
-      row.id = uuidv4()
-      const page = dataSample.find((x) => x.pageName === pageName)
-      const data = page?.data.find((x) => x.name === dataName)
-      data?.rows.push(row)
-      return row.id
-    },
+    // Add / edit rows in database
+    saveData: (_: void, { pageName, tableName, row }: SaveDataArgs): string => {
+      // TODO: Implement authentication and authorisation
 
-    // editData: (_: void, { pageName, dataName, rowId, fields }: EditDataArgs): string => {
-    //   const page = dataSample.find((x) => x.pageName === pageName)
-    //   const data = page?.data.find((x) => x.name === dataName)
-    //   const row = data?.rows.find((x) => x.id === rowId)
-    //   for (var field of fields) {
-    //     setValueByPath(row, field.path, field.value)
-    //   }
-    //   return rowId
-    // },
+      // TODO: Use actual database to retrieve row
+      const page = tables.find((x) => x.pageName === pageName)
+      const table = page?.tables.find((x) => x.tableName === tableName)
+      let existingRow = table?.rows.find((x) => x.id === row.id) as any
 
-    editData: (_: void, { pageName, dataName, row }: EditDataArgs): string => {
-      const page = dataSample.find((x) => x.pageName === pageName)
-      const data = page?.data.find((x) => x.name === dataName)
-      let existingRow = data?.rows.find((x) => x.id === row.id) as any
-      if (pageName === homePageName && dataName === "iterations") {
+      // Save logic for 'iterations' table
+      if (pageName === homePageName && tableName === "iterations") {
         if (existingRow) {
+          // TODO: Use the name (or id) of the logged-in user
           existingRow.updated.employee = "TODO"
-          existingRow.updated.datetime = formatCurrentDateTime()
+          // TODO: Check whether to store timestamp in universal format
+          existingRow.updated.datetime = getCurrentDateTimeFormatted()
         }
+        // If the row doesn't exist, then add the row
         if (existingRow === undefined) {
           existingRow = {
             id: uuidv4(),
@@ -347,13 +319,18 @@ const resolvers = {
               datetime: null,
             },
             created: {
+              // TODO: Use the name (or id) of the logged-in user
               employee: "TODO",
-              datetime: formatCurrentDateTime(),
+              // TODO: Check whether to store timestamp in universal format
+              datetime: getCurrentDateTimeFormatted(),
             },
+            // Default status to New
             status: "New",
           }
-          data?.rows.push(existingRow)
+          table?.rows.push(existingRow)
         }
+
+        // Update row fields with supplied values
         existingRow.name = row.name
         if (row.status) {
           existingRow.status = row.status
@@ -362,10 +339,14 @@ const resolvers = {
       return row.id
     },
 
-    deleteData: (_: void, { pageName, dataName, rowId }: DeleteDataArgs): string => {
-      const page = dataSample.find((x) => x.pageName === pageName)
-      const data = page?.data.find((x) => x.name === dataName)
+    deleteData: (_: void, { pageName, tableName, rowId }: DeleteDataArgs): string => {
+      // Find the row to be deleted
+      // TODO: Use actual database
+      const page = tables.find((x) => x.pageName === pageName)
+      const data = page?.tables.find((x) => x.tableName === tableName)
       const rowIndex = data?.rows.findIndex((row) => row.id === rowId)
+
+      // Remove the row from the database
       if (rowIndex !== undefined && rowIndex >= 0) {
         data?.rows.splice(rowIndex, 1)
       }

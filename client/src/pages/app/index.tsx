@@ -1,14 +1,17 @@
 import renderComponent from "./renderComponent"
 import { useQuery, gql, useMutation } from "@apollo/client"
 import "./index.css"
+import PageUI from "./renderComponent/interfaces/graphql/PageUI"
+import PageData from "./renderComponent/interfaces/graphql/PageData"
+import ComponentProps from "./renderComponent/interfaces/props/ComponentProps"
 
 const GET_PAGE_DATA = gql`
-  query GetPageData($pageName: String!, $dataName: String) {
-    getPageData(pageName: $pageName, dataName: $dataName) {
+  query GetPageData($pageName: String!, $tableName: String) {
+    getPageData(pageName: $pageName, tableName: $tableName) {
       id
       pageName
-      data {
-        name
+      tables {
+        tableName
         rows
       }
     }
@@ -39,21 +42,15 @@ const GET_PAGE_UI = gql`
   }
 `
 
-const ADD_DATA = gql`
-  mutation AddData($pageName: String!, $dataName: String!, $row: JSON!) {
-    addData(pageName: $pageName, dataName: $dataName, row: $row)
-  }
-`
-
-const EDIT_DATA = gql`
-  mutation EditData($pageName: String!, $dataName: String!, $row: JSON!) {
-    editData(pageName: $pageName, dataName: $dataName, row: $row)
+const SAVE_DATA = gql`
+  mutation SaveData($pageName: String!, $tableName: String!, $row: JSON!) {
+    saveData(pageName: $pageName, tableName: $tableName, row: $row)
   }
 `
 
 const DELETE_DATA = gql`
-  mutation DeleteData($pageName: String!, $dataName: String!, $rowId: ID!) {
-    deleteData(pageName: $pageName, dataName: $dataName, rowId: $rowId)
+  mutation DeleteData($pageName: String!, $tableName: String!, $rowId: ID!) {
+    deleteData(pageName: $pageName, tableName: $tableName, rowId: $rowId)
   }
 `
 
@@ -73,10 +70,10 @@ const AppContext = () => {
     error: dataError,
     data: dataData,
   } = useQuery(GET_PAGE_DATA, {
-    variables: { pageName, dataName: "" },
+    variables: { pageName, tableName: "" },
   })
 
-  const [addDataMutation, { error: addError }] = useMutation(ADD_DATA, {
+  const [saveDataMutation, { error: saveError }] = useMutation(SAVE_DATA, {
     refetchQueries: [
       {
         query: GET_PAGE_DATA,
@@ -85,26 +82,9 @@ const AppContext = () => {
     ],
   })
 
-  const addData = async (dataName: string, row: any) => {
+  const saveRow = async (tableName: string, row: any) => {
     try {
-      await addDataMutation({ variables: { pageName, dataName, row } })
-    } catch (err) {
-      console.error("Error adding item:", err)
-    }
-  }
-
-  const [editDataMutation, { error: editError }] = useMutation(EDIT_DATA, {
-    refetchQueries: [
-      {
-        query: GET_PAGE_DATA,
-        variables: { pageName },
-      },
-    ],
-  })
-
-  const editData = async (dataName: string, row: any) => {
-    try {
-      await editDataMutation({ variables: { pageName, dataName, row } })
+      await saveDataMutation({ variables: { pageName, tableName, row } })
     } catch (err) {
       console.error("Error editing item:", err)
     }
@@ -119,9 +99,9 @@ const AppContext = () => {
     ],
   })
 
-  const deleteData = async (dataName: string, rowId: string) => {
+  const deleteRow = async (tableName: string, rowId: string) => {
     try {
-      await deleteDataMutation({ variables: { pageName, dataName, rowId } })
+      await deleteDataMutation({ variables: { pageName, tableName, rowId } })
     } catch (err) {
       console.error("Error deleting item:", err)
     }
@@ -136,23 +116,29 @@ const AppContext = () => {
   if (dataError) {
     return <p>GraphQL - Data Error: {dataError.message}</p>
   }
-  if (addError) {
-    return <p>GraphQL - Add Data Error: {addError.message}</p>
-  }
-  if (editError) {
-    return <p>GraphQL - Edit Data Error: {editError.message}</p>
+  if (saveError) {
+    return <p>GraphQL - Save Data Error: {saveError.message}</p>
   }
   if (deleteError) {
     return <p>GraphQL - Delete Data Error: {deleteError.message}</p>
   }
 
-  const pageData = dataData.getPageData
-  const pageUI = uiData.getPageUI
+  const pageData: PageData = dataData.getPageData
+  const pageUI: PageUI = uiData.getPageUI
+
+  const componentProps: ComponentProps = {
+    ui: pageUI.layout,
+    data: {
+      tables: pageData.tables,
+      saveRow,
+      deleteRow,
+    },
+  }
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">App Context: {pageUI.pageName}</h1>
-      {renderComponent(pageUI.layout, pageData.data, addData, editData, deleteData)}
+      {renderComponent(componentProps.ui, componentProps.data)}
     </div>
   )
 }
