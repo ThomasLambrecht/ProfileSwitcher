@@ -188,7 +188,7 @@ const uiSample = [
             canAdd: false,
             canEdit: false,
             canDelete: false,
-            canSearch: false,
+            canSearch: true,
             title: "Table 1",
             headers: ["Header A", "Header B", "Header C", "Header D"],
             rows: [
@@ -216,12 +216,28 @@ const uiSample = [
             canAdd: true,
             canEdit: true,
             canDelete: true,
-            canSearch: false,
+            canSearch: true,
             title: "Iterations",
             headers: ["Iteration", "Modified", "Created", "Status"],
             dataTableName: "iterations",
             tableViewCells: [{ fields: ["name"] }, { fields: ["updated.employee", "updated.datetime"] }, { fields: ["created.employee", "created.datetime"] }, { fields: ["status"] }],
             tableEditCells: [{ field: "name", type: "textInput" }, null, null, { field: "status", type: "select", referenceTableName: "iterationStatus" }],
+          },
+          children: [],
+        },
+        {
+          id: uuidv4(),
+          type: "Table",
+          props: {
+            canAdd: true,
+            canEdit: true,
+            canDelete: true,
+            canSearch: true,
+            title: "Iterations Status",
+            headers: ["Status"],
+            dataTableName: "iterationStatus",
+            tableViewCells: [{ fields: ["value"] }],
+            tableEditCells: [{ field: "value", type: "textInput" }],
           },
           children: [],
         },
@@ -336,7 +352,32 @@ const resolvers = {
           existingRow.status = row.status
         }
       }
-      return row.id
+
+      // Save logic for 'iterationStatus' table
+      if (pageName === homePageName && tableName === "iterationStatus") {
+        // Don't save empty values
+        if (row.value === null) {
+          return ""
+        }
+
+        // If the row doesn't exist, then add the row
+        if (existingRow === undefined) {
+          existingRow = {
+            id: uuidv4(),
+            value: null,
+          }
+          table?.rows.push(existingRow)
+        }
+        if (existingRow.value === "New") {
+          // Don't update for "New" or empty
+          return existingRow.id
+        }
+
+        // Update row fields with supplied values
+        existingRow.value = row.value
+      }
+
+      return existingRow.id
     },
 
     deleteData: (_: void, { pageName, tableName, rowId }: DeleteDataArgs): string => {
