@@ -21,8 +21,7 @@ export function Login() {
       const { sessionId } = response.data
       localStorage.setItem("sessionId", sessionId)
       axios.defaults.headers.common["x-session-id"] = sessionId
-      // navigate("/admin")
-      navigate("/app")
+      navigate("/admin")
       toast({
         title: "Success",
         description: "Logged in successfully",
@@ -50,7 +49,14 @@ export function Login() {
               <Input id="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full" />
             </div>
             <div className="space-y-2">
-              <Input id="password" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full" />
+              <Input
+                id="password"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full"
+              />
             </div>
           </form>
         </CardContent>

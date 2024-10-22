@@ -52,8 +52,10 @@ const AppTableRow = ({
         ))}
         {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
           <TableCell>
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 justify-end">
               <Button
+                variant="default"
+                size="sm"
                 onClick={() => {
                   onEditSaveClick(editDataRow)
                 }}
@@ -61,6 +63,8 @@ const AppTableRow = ({
                 Save
               </Button>
               <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   onEditCancelClick(dataRow.id)
                 }}
@@ -99,7 +103,7 @@ const AppTableRow = ({
       ))}
       {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
         <TableCell>
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 justify-end">
             {ui.props.canEdit && (
               <Button
                 variant="outline"

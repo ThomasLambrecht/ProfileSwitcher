@@ -83,6 +83,8 @@ const AppTable = ({ ui, data }: ComponentProps): React.ReactNode => {
                 {ui.props.canAdd && !isAddMode && (
                   <div className="flex justify-end">
                     <Button
+                      variant="default"
+                      size="sm"
                       onClick={() => {
                         onAddClick()
                       }}

@@ -5,7 +5,7 @@ import setValueByPath from "./setValueByPath"
 import TableViewCell from "../../interfaces/graphql/TableViewCell"
 import TableEditCell from "../../interfaces/graphql/TableEditCell"
 import { TableCell } from "@/components/ui/table"
-import { Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 
 interface AppTableCellProps {
@@ -45,8 +45,8 @@ const AppTableCell = ({
       updateValue(e.target.value)
     }
 
-    const onSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
-      updateValue(e.target.value)
+    const onSelectChange = (value: string) => {
+      updateValue(value)
     }
 
     if (tableEditCell?.type === "textInput") {
@@ -61,13 +61,18 @@ const AppTableCell = ({
       const iterationStatusRows = data.tables.find((x) => x.tableName === tableEditCell.referenceTableName)?.rows
       return (
         <TableCell key={index}>
-          <select value={editDataRow[field]} onChange={onSelectChange}>
-            {iterationStatusRows?.map((row, index) => (
-              <option key={index} value={row.value}>
-                {row.value}
-              </option>
-            ))}
-          </select>
+          <Select value={editDataRow[field]} onValueChange={onSelectChange}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select..." />
+            </SelectTrigger>
+            <SelectContent>
+              {iterationStatusRows?.map((row, index) => (
+                <SelectItem key={index} value={row.value}>
+                  {row.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </TableCell>
       )
     }
