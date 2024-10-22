@@ -1,3 +1,4 @@
+// This function allows you to set a nested object such as { test: { a: 5 } } using the "test.a" path
 const setValueByPath = (row: any, path: string, value: any): void => {
   const keys = path.split(".")
 

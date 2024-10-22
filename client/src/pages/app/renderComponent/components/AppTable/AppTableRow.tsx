@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react"
 import AppTableCell from "./AppTableCell"
 import UIComponent from "../../interfaces/graphql/UIComponent"

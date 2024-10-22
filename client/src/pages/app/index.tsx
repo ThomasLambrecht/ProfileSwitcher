@@ -1,6 +1,5 @@
 import renderComponent from "./renderComponent"
 import { useQuery, gql, useMutation } from "@apollo/client"
-import "./index.css"
 import PageUI from "./renderComponent/interfaces/graphql/PageUI"
 import PageData from "./renderComponent/interfaces/graphql/PageData"
 import ComponentProps from "./renderComponent/interfaces/props/ComponentProps"
