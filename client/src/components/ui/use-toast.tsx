@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 
 type ToastProps = {
   title: string
   description: string
-  variant?: 'default' | 'destructive'
+  variant?: "default" | "destructive"
 }
 
 export function useToast() {
   const [toasts, setToasts] = useState<ToastProps[]>([])
 
-  const toast = ({ title, description, variant = 'default' }: ToastProps) => {
+  const toast = ({ title, description, variant = "default" }: ToastProps) => {
     const id = Date.now()
     setToasts((prevToasts) => [...prevToasts, { id, title, description, variant }])
   }

@@ -17,12 +17,14 @@ This is the React-based UI client for the ProfileSwitcher application. It provid
 ## Setup
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/your-repo/profile-switcher.git
    cd profile-switcher/ui-client
    ```
 
 2. Install dependencies:
+
    ```
    npm install
    ```

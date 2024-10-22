@@ -13,8 +13,8 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# .vscode/*
+# !.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -32,11 +32,10 @@ dist/
 build/
 
 # Ignore TypeScript configuration files
-tsconfig.json
 tslint.json
 
 # Ignore IDE files
-.vscode/
+# .vscode/
 .idea/
 .eclipse/
 
