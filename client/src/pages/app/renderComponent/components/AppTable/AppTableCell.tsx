@@ -52,7 +52,7 @@ const AppTableCell = ({
     if (tableEditCell?.type === "textInput") {
       return (
         <TableCell key={index}>
-          <Input type="text" placeholder={"Enter a value"} value={editDataRow[field]} onChange={onTextInputChange} />
+          <Input type="text" placeholder={"Enter a value"} value={editDataRow[field] ?? ""} onChange={onTextInputChange} />
         </TableCell>
       )
     }
