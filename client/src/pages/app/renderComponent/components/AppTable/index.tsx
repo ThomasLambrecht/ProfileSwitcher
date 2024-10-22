@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ChangeEvent, useEffect, useState } from "react"
 import ComponentProps from "../../interfaces/props/ComponentProps"
-import TableRow from "./TableRow"
+import AppTableRow from "./AppTableRow"
 import DataRow from "../../interfaces/graphql/DataRow"
 
-const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
+const AppTable = ({ ui, data }: ComponentProps): React.ReactNode => {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("")
   const [editRowIds, setEditRowIds] = useState<string[]>([])
@@ -95,7 +95,7 @@ const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
           {dataRows?.map((dataRow: DataRow, index: number) => {
             const isEditMode = !!ui.props.dataTableName && (!dataRow.id || editRowIds.includes(dataRow.id))
             return (
-              <TableRow
+              <AppTableRow
                 key={index}
                 ui={ui}
                 dataRow={dataRow}
@@ -110,7 +110,7 @@ const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
             )
           })}
           {isAddMode && (
-            <TableRow
+            <AppTableRow
               key={"addRow"}
               ui={ui}
               dataRow={newRow}
@@ -129,4 +129,4 @@ const Table = ({ ui, data }: ComponentProps): React.ReactNode => {
   )
 }
 
-export default Table
+export default AppTable

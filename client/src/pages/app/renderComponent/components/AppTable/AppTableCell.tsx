@@ -5,7 +5,7 @@ import setValueByPath from "./setValueByPath"
 import TableViewCell from "../../interfaces/graphql/TableViewCell"
 import TableEditCell from "../../interfaces/graphql/TableEditCell"
 
-interface TableCellProps {
+interface AppTableCellProps {
   tableViewCell: TableViewCell
   tableEditCells?: TableEditCell[]
   dataRow: DataRow
@@ -16,7 +16,7 @@ interface TableCellProps {
   setEditDataRow: any
 }
 
-const TableCell = ({
+const AppTableCell = ({
   tableViewCell,
   tableEditCells,
   dataRow,
@@ -25,7 +25,7 @@ const TableCell = ({
   data,
   editDataRow,
   setEditDataRow,
-}: TableCellProps): React.ReactNode => {
+}: AppTableCellProps): React.ReactNode => {
   const field = tableViewCell.fields[0]
 
   // Edit mode
@@ -97,4 +97,4 @@ const TableCell = ({
   )
 }
 
-export default TableCell
+export default AppTableCell

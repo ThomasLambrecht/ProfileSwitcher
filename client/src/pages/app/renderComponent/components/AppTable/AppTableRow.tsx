@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react"
-import TableCell from "./TableCell"
+import AppTableCell from "./AppTableCell"
 import UIComponent from "../../interfaces/graphql/UIComponent"
 import DataRow from "../../interfaces/graphql/DataRow"
 import DataProps from "../../interfaces/props/DataProps"
 import TableViewCell from "../../interfaces/graphql/TableViewCell"
 
-interface TableRowProps {
+interface AppTableRowProps {
   ui: UIComponent
   dataRow: DataRow
   index: number | string
@@ -18,7 +18,7 @@ interface TableRowProps {
   onEditSaveClick: any
 }
 
-const TableRow = ({
+const AppTableRow = ({
   ui,
   dataRow,
   index,
@@ -28,7 +28,7 @@ const TableRow = ({
   data,
   onEditCancelClick,
   onEditSaveClick,
-}: TableRowProps): React.ReactNode => {
+}: AppTableRowProps): React.ReactNode => {
   const [editDataRow, setEditDataRow] = useState<any>(dataRow)
 
   // Edit mode
@@ -36,7 +36,7 @@ const TableRow = ({
     return (
       <tr key={index}>
         {ui.props.tableViewCells?.map((tableViewCell: TableViewCell, index: number) => (
-          <TableCell
+          <AppTableCell
             key={index}
             tableViewCell={tableViewCell}
             tableEditCells={ui.props.tableEditCells}
@@ -119,4 +119,4 @@ const TableRow = ({
   )
 }
 
-export default TableRow
+export default AppTableRow

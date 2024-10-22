@@ -1,6 +1,6 @@
 import ComponentProps from "../interfaces/props/ComponentProps"
 
-const List = ({ ui, data }: ComponentProps): React.ReactNode => {
+const AppList = ({ ui, data }: ComponentProps): React.ReactNode => {
   const dataRows = data && data.tables.find((x) => x.tableName === ui.props.dataTableName)?.rows
   const uiRows = ui.props.rows
   const items = dataRows ?? uiRows
@@ -12,4 +12,4 @@ const List = ({ ui, data }: ComponentProps): React.ReactNode => {
   )
 }
 
-export default List
+export default AppList

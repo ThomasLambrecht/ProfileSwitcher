@@ -3,7 +3,7 @@ import renderComponent from ".."
 import ComponentProps from "../interfaces/props/ComponentProps"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-const CardComponent = ({ ui, data }: ComponentProps): React.ReactNode => {
+const AppCard = ({ ui, data }: ComponentProps): React.ReactNode => {
   return (
     <Card key={ui.id}>
       <CardHeader>
@@ -14,4 +14,4 @@ const CardComponent = ({ ui, data }: ComponentProps): React.ReactNode => {
   )
 }
 
-export default CardComponent
+export default AppCard

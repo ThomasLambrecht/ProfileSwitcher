@@ -1,28 +1,28 @@
 import React from "react"
-import Grid from "./components/Grid"
-import Card from "./components/Card"
-import Text from "./components/Text"
-import List from "./components/List"
-import Table from "./components/Table"
+import AppGrid from "./components/AppGrid"
+import AppCard from "./components/AppCard"
+import AppText from "./components/AppText"
+import AppList from "./components/AppList"
+import AppTable from "./components/AppTable"
 import UIComponent from "./interfaces/graphql/UIComponent"
 import DataProps from "./interfaces/props/DataProps"
 
 const renderComponent = (ui: UIComponent, data: DataProps): React.ReactNode => {
   switch (ui.type) {
     case "Grid":
-      return <Grid ui={ui} data={data} />
+      return <AppGrid ui={ui} data={data} />
 
     case "Card":
-      return <Card ui={ui} data={data} />
+      return <AppCard ui={ui} data={data} />
 
     case "Text":
-      return <Text ui={ui} data={data} />
+      return <AppText ui={ui} data={data} />
 
     case "List":
-      return <List ui={ui} data={data} />
+      return <AppList ui={ui} data={data} />
 
     case "Table":
-      return <Table ui={ui} data={data} />
+      return <AppTable ui={ui} data={data} />
 
     default:
       return null
