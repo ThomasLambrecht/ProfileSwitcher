@@ -141,7 +141,9 @@ const uiSample = [
     layout: {
       id: uuidv4(),
       type: "Grid",
-      props: { columns: 2, gap: 4 },
+      // I've set column size to 1 to allow more space for the tables
+      // TODO: Allow larger components to use multiple columns
+      props: { columns: 1, gap: 4 },
       children: [
         {
           id: uuidv4(),
