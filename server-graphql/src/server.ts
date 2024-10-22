@@ -160,7 +160,7 @@ const uiSample = [
         {
           id: uuidv4(),
           type: "Card",
-          props: { title: "Stats 1" },
+          props: { title: "Stats - static list in UI schema" },
           children: [
             {
               id: uuidv4(),
@@ -174,7 +174,7 @@ const uiSample = [
         {
           id: uuidv4(),
           type: "Card",
-          props: { title: "Stats 2" },
+          props: { title: "Stats - dynamic list from Data schema" },
           children: [
             {
               id: uuidv4(),
@@ -183,34 +183,36 @@ const uiSample = [
             },
           ],
         },
-        {
-          id: uuidv4(),
-          type: "Table",
-          props: {
-            canAdd: false,
-            canEdit: false,
-            canDelete: false,
-            canSearch: true,
-            title: "Table 1",
-            headers: ["Header A", "Header B", "Header C", "Header D"],
-            rows: [
-              {
-                a: "A1",
-                b: { itemA: "B1.a", itemB: "B1.b" },
-                c: "C1",
-                d: "D1",
-              },
-              {
-                a: "A2",
-                b: { itemA: "B2.a", itemB: "B2.b" },
-                c: "C2",
-                d: "D2",
-              },
-            ],
-            tableViewCells: [{ fields: ["a"] }, { fields: ["b.itemA", "b.itemB"] }, { fields: ["c"] }, { fields: ["d"] }],
-          },
-          children: [],
-        },
+        // The following is an example of using a table with inline rows
+        //
+        // {
+        //   id: uuidv4(),
+        //   type: "Table",
+        //   props: {
+        //     canAdd: false,
+        //     canEdit: false,
+        //     canDelete: false,
+        //     canSearch: true,
+        //     title: "Table 1",
+        //     headers: ["Header A", "Header B", "Header C", "Header D"],
+        //     rows: [
+        //       {
+        //         a: "A1",
+        //         b: { itemA: "B1.a", itemB: "B1.b" },
+        //         c: "C1",
+        //         d: "D1",
+        //       },
+        //       {
+        //         a: "A2",
+        //         b: { itemA: "B2.a", itemB: "B2.b" },
+        //         c: "C2",
+        //         d: "D2",
+        //       },
+        //     ],
+        //     tableViewCells: [{ fields: ["a"] }, { fields: ["b.itemA", "b.itemB"] }, { fields: ["c"] }, { fields: ["d"] }],
+        //   },
+        //   children: [],
+        // },
         {
           id: uuidv4(),
           type: "Table",
@@ -235,7 +237,7 @@ const uiSample = [
             canEdit: true,
             canDelete: true,
             canSearch: true,
-            title: "Iterations Status",
+            title: "Iteration Status",
             headers: ["Status"],
             dataTableName: "iterationStatus",
             tableViewCells: [{ fields: ["value"] }],

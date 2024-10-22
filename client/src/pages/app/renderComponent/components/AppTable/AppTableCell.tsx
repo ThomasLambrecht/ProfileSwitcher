@@ -4,10 +4,13 @@ import DataRow from "../../interfaces/graphql/DataRow"
 import setValueByPath from "./setValueByPath"
 import TableViewCell from "../../interfaces/graphql/TableViewCell"
 import TableEditCell from "../../interfaces/graphql/TableEditCell"
+import { TableCell } from "@/components/ui/table"
+import { Select } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 
 interface AppTableCellProps {
   tableViewCell: TableViewCell
-  tableEditCells?: TableEditCell[]
+  tableEditCell?: TableEditCell
   dataRow: DataRow
   index: number
   isEditMode: boolean
@@ -18,7 +21,7 @@ interface AppTableCellProps {
 
 const AppTableCell = ({
   tableViewCell,
-  tableEditCells,
+  tableEditCell,
   dataRow,
   index,
   isEditMode,
@@ -29,7 +32,6 @@ const AppTableCell = ({
   const field = tableViewCell.fields[0]
 
   // Edit mode
-  const tableEditCell = tableEditCells && tableEditCells[index]
   if (isEditMode && tableEditCell?.type) {
     const updateValue = (value: any) => {
       const updatedEditDataRow = {
@@ -49,16 +51,16 @@ const AppTableCell = ({
 
     if (tableEditCell?.type === "textInput") {
       return (
-        <td key={index}>
-          <input type="text" value={editDataRow[field]} onChange={onTextInputChange} />
-        </td>
+        <TableCell key={index}>
+          <Input type="text" placeholder={"Enter a value"} value={editDataRow[field]} onChange={onTextInputChange} />
+        </TableCell>
       )
     }
 
     if (tableEditCell?.type === "select") {
       const iterationStatusRows = data.tables.find((x) => x.tableName === tableEditCell.referenceTableName)?.rows
       return (
-        <td key={index}>
+        <TableCell key={index}>
           <select value={editDataRow[field]} onChange={onSelectChange}>
             {iterationStatusRows?.map((row, index) => (
               <option key={index} value={row.value}>
@@ -66,16 +68,16 @@ const AppTableCell = ({
               </option>
             ))}
           </select>
-        </td>
+        </TableCell>
       )
     }
 
-    return <td key={index}></td>
+    return <TableCell key={index}></TableCell>
   }
 
   // View mode
   return (
-    <td key={index}>
+    <TableCell key={index}>
       {tableViewCell.fields.map((dataField: string, index: number) => {
         const value = dataField.split(".").reduce((obj, key) => (obj && obj[key] !== undefined ? obj[key] : undefined), dataRow) as any
 
@@ -93,7 +95,7 @@ const AppTableCell = ({
           </React.Fragment>
         )
       })}
-    </td>
+    </TableCell>
   )
 }
 

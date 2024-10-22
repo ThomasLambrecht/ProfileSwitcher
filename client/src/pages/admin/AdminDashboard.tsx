@@ -51,7 +51,12 @@ export function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [usersRes, rolesRes, permissionsRes, appsRes] = await Promise.all([axios.get(`${API_BASE_URL}/users`), axios.get(`${API_BASE_URL}/roles`), axios.get(`${API_BASE_URL}/permissions`), axios.get(`${API_BASE_URL}/apps`)])
+      const [usersRes, rolesRes, permissionsRes, appsRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/users`),
+        axios.get(`${API_BASE_URL}/roles`),
+        axios.get(`${API_BASE_URL}/permissions`),
+        axios.get(`${API_BASE_URL}/apps`),
+      ])
       setUsers(usersRes.data)
       setRoles(rolesRes.data)
       setPermissions(permissionsRes.data)
@@ -220,7 +225,11 @@ export function AdminDashboard() {
                   <TableCell>{permission.name}</TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" onClick={() => handleUpdate("permissions", permission.id, { ...permission, name: `${permission.name} (Updated)` })}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleUpdate("permissions", permission.id, { ...permission, name: `${permission.name} (Updated)` })}
+                      >
                         Edit
                       </Button>
                       <Button variant="destructive" size="sm" onClick={() => handleDelete("permissions", permission.id)}>

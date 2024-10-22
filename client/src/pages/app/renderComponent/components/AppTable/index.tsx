@@ -1,8 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ChangeEvent, useEffect, useState } from "react"
 import ComponentProps from "../../interfaces/props/ComponentProps"
 import AppTableRow from "./AppTableRow"
 import DataRow from "../../interfaces/graphql/DataRow"
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 const AppTable = ({ ui, data }: ComponentProps): React.ReactNode => {
   const [searchTerm, setSearchTerm] = useState<string>("")
@@ -70,28 +72,30 @@ const AppTable = ({ ui, data }: ComponentProps): React.ReactNode => {
     <div className="mt-4 mb-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">{ui.props.title}</h1>
-        {ui.props.canSearch && <input type="text" placeholder="Search..." className="border p-2 rounded w-64" onChange={onSearchChange} />}
+        {ui.props.canSearch && <Input type="text" placeholder="Search..." className="border p-2 rounded w-64" onChange={onSearchChange} />}
       </div>
-      <table key={ui.id} className="myTable w-full">
-        <thead>
-          <tr>
+      <Table>
+        <TableHeader>
+          <TableRow>
             {ui.props.headers?.map((header: string, index: number) => <th key={index}>{header}</th>)}
             {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
-              <th>
+              <TableHead>
                 {ui.props.canAdd && !isAddMode && (
-                  <button
-                    onClick={() => {
-                      onAddClick()
-                    }}
-                  >
-                    Add
-                  </button>
+                  <div className="flex justify-end">
+                    <Button
+                      onClick={() => {
+                        onAddClick()
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </div>
                 )}
-              </th>
+              </TableHead>
             )}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {dataRows?.map((dataRow: DataRow, index: number) => {
             const isEditMode = !!ui.props.dataTableName && (!dataRow.id || editRowIds.includes(dataRow.id))
             return (
@@ -123,8 +127,8 @@ const AppTable = ({ ui, data }: ComponentProps): React.ReactNode => {
               onEditSaveClick={onEditSaveClick}
             />
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   )
 }

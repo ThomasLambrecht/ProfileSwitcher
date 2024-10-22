@@ -5,6 +5,8 @@ import UIComponent from "../../interfaces/graphql/UIComponent"
 import DataRow from "../../interfaces/graphql/DataRow"
 import DataProps from "../../interfaces/props/DataProps"
 import TableViewCell from "../../interfaces/graphql/TableViewCell"
+import { TableCell, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 
 interface AppTableRowProps {
   ui: UIComponent
@@ -34,12 +36,12 @@ const AppTableRow = ({
   // Edit mode
   if (isEditMode) {
     return (
-      <tr key={index}>
+      <TableRow key={index}>
         {ui.props.tableViewCells?.map((tableViewCell: TableViewCell, index: number) => (
           <AppTableCell
             key={index}
             tableViewCell={tableViewCell}
-            tableEditCells={ui.props.tableEditCells}
+            tableEditCell={ui.props.tableEditCells && ui.props.tableEditCells[index]}
             dataRow={dataRow}
             index={index}
             isEditMode={isEditMode}
@@ -49,32 +51,34 @@ const AppTableRow = ({
           />
         ))}
         {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
-          <td>
-            <button
-              onClick={() => {
-                onEditSaveClick(editDataRow)
-              }}
-            >
-              Save
-            </button>
-            <button
-              onClick={() => {
-                onEditCancelClick(dataRow.id)
-              }}
-            >
-              Cancel
-            </button>
-          </td>
+          <TableCell>
+            <div className="flex space-x-2">
+              <Button
+                onClick={() => {
+                  onEditSaveClick(editDataRow)
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                onClick={() => {
+                  onEditCancelClick(dataRow.id)
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
+          </TableCell>
         )}
-      </tr>
+      </TableRow>
     )
   }
 
   // View mode
   return (
-    <tr key={index}>
+    <TableRow key={index}>
       {ui.props.tableViewCells?.map((tableViewCell: TableViewCell, index: number) => (
-        <td key={index}>
+        <TableCell key={index}>
           {tableViewCell.fields?.map((field: string, index: number) => {
             const value = field.split(".").reduce((obj, key) => obj[key], dataRow) as any
             if (index === 0) {
@@ -91,31 +95,37 @@ const AppTableRow = ({
               </React.Fragment>
             )
           })}
-        </td>
+        </TableCell>
       ))}
       {(ui.props.canEdit || ui.props.canDelete || ui.props.canAdd) && (
-        <td>
-          {ui.props.canEdit && (
-            <button
-              onClick={() => {
-                onEditClick(dataRow.id)
-              }}
-            >
-              Edit
-            </button>
-          )}
-          {ui.props.canDelete && (
-            <button
-              onClick={() => {
-                onDeleteClick(dataRow.id)
-              }}
-            >
-              Delete
-            </button>
-          )}
-        </td>
+        <TableCell>
+          <div className="flex space-x-2">
+            {ui.props.canEdit && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onEditClick(dataRow.id)
+                }}
+              >
+                Edit
+              </Button>
+            )}
+            {ui.props.canDelete && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  onDeleteClick(dataRow.id)
+                }}
+              >
+                Delete
+              </Button>
+            )}
+          </div>
+        </TableCell>
       )}
-    </tr>
+    </TableRow>
   )
 }
 
